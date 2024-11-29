@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_HYBRIDBINARIZER_H
-#define ZXING_HYBRIDBINARIZER_H
+#ifndef __HYBRIDBINARIZER_H__
+#define __HYBRIDBINARIZER_H__
 /*
  *  HybridBinarizer.h
  *  zxing
@@ -30,38 +30,38 @@ namespace zxing {
 	
 	class HybridBinarizer : public GlobalHistogramBinarizer {
 	 private:
-    QSharedPointer<BitMatrix> matrix_;
-	  QSharedPointer<BitArray> cached_row_;
+    Ref<BitMatrix> matrix_;
+	  Ref<BitArray> cached_row_;
 
 	public:
-		HybridBinarizer(QSharedPointer<LuminanceSource> source);
+		HybridBinarizer(Ref<LuminanceSource> source);
 		virtual ~HybridBinarizer();
 		
-		virtual QSharedPointer<BitMatrix> getBlackMatrix();
-		QSharedPointer<Binarizer> createBinarizer(QSharedPointer<LuminanceSource> source);
+		virtual Ref<BitMatrix> getBlackMatrix();
+		Ref<Binarizer> createBinarizer(Ref<LuminanceSource> source);
   private:
     // We'll be using one-D arrays because C++ can't dynamically allocate 2D
     // arrays
-    QSharedPointer<std::vector<int>> calculateBlackPoints(QSharedPointer<std::vector<zxing::byte>> luminances,
+    ArrayRef<int> calculateBlackPoints(ArrayRef<char> luminances,
                                        int subWidth,
                                        int subHeight,
                                        int width,
                                        int height);
-    void calculateThresholdForBlock(QSharedPointer<std::vector<zxing::byte>> luminances,
+    void calculateThresholdForBlock(ArrayRef<char> luminances,
                                     int subWidth,
                                     int subHeight,
                                     int width,
                                     int height,
-                                    QSharedPointer<std::vector<int>> blackPoints,
-                                    QSharedPointer<BitMatrix> const& matrix);
-    void thresholdBlock(QSharedPointer<std::vector<zxing::byte>>luminances,
+                                    ArrayRef<int> blackPoints,
+                                    Ref<BitMatrix> const& matrix);
+    void thresholdBlock(ArrayRef<char>luminances,
                         int xoffset,
                         int yoffset,
                         int threshold,
                         int stride,
-                        QSharedPointer<BitMatrix> const& matrix);
+                        Ref<BitMatrix> const& matrix);
 	};
 
 }
 
-#endif // ZXING_HYBRIDBINARIZER_H
+#endif

@@ -1,7 +1,6 @@
 #include "QRCodeScanner.h"
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QCameraInfo>
 #include <QDir>
 #include <QDebug>
 
@@ -28,8 +27,9 @@ QRCodeScanner::QRCodeScanner(QWidget *parent)
     connect(scanButton, &QPushButton::clicked, this, &QRCodeScanner::toggleCamera);
 
     // Changement de la caméra
-    connect(camerasComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                    this, &QRCodeScanner::onCameraChanged);
+    connect(camerasComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(onCameraChanged(int)));
+
 
     // Capture d'image
     imageCapture = new QCameraImageCapture(camera);
@@ -83,8 +83,11 @@ void QRCodeScanner::captureAndDecode() {
 
 
 void QRCodeScanner::processImage(int id, const QImage& preview) {
+    // Créer une copie non constante de l'image
+    QImage mutablePreview = preview;
+
     // Décodage du QR code
-    QString result = zxing->decodeImage(preview);
+    QString result = zxing->decodeImage(mutablePreview);
     lastDecodedText = result;
 
     if (!result.isEmpty()) {
@@ -123,13 +126,14 @@ void QRCodeScanner::toggleCamera() {
 
 void QRCodeScanner::populateCameraList() {
     // Récupérer la liste des caméras disponibles
-    QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
+    QList<QByteArray> cameras = QCamera::availableDevices();
 
     camerasComboBox->clear();
     for (int i = 0; i < cameras.size(); ++i) {
-        camerasComboBox->addItem(cameras[i].description(), i);
+        camerasComboBox->addItem(cameras[i], i);
     }
 }
+
 
 void QRCodeScanner::onCameraChanged(int index) {
     // Si une caméra était déjà active, l'arrêter
@@ -140,7 +144,7 @@ void QRCodeScanner::onCameraChanged(int index) {
     }
 
     // Créer une nouvelle caméra avec l'index sélectionné
-    camera = new QCamera(QCameraInfo::availableCameras()[index]);
+    camera = new QCamera(QCamera::availableDevices()[index]);
     camera->setViewfinder(viewfinder);
 
     // Reconnection signal-slot pour la caméra

@@ -23,23 +23,23 @@
 #include <zxing/LuminanceSource.h>
 #include <zxing/common/BitArray.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 
 namespace zxing {
 
-class Binarizer  {
+class Binarizer : public Counted {
  private:
-  QSharedPointer<LuminanceSource> source_;
+  Ref<LuminanceSource> source_;
 
  public:
-  Binarizer(QSharedPointer<LuminanceSource> source);
+  Binarizer(Ref<LuminanceSource> source);
   virtual ~Binarizer();
 
-  virtual QSharedPointer<BitArray> getBlackRow(int y, QSharedPointer<BitArray> row) = 0;
-  virtual QSharedPointer<BitMatrix> getBlackMatrix() = 0;
+  virtual Ref<BitArray> getBlackRow(int y, Ref<BitArray> row) = 0;
+  virtual Ref<BitMatrix> getBlackMatrix() = 0;
 
-  QSharedPointer<LuminanceSource> getLuminanceSource() const ;
-  virtual QSharedPointer<Binarizer> createBinarizer(QSharedPointer<LuminanceSource> source) = 0;
+  Ref<LuminanceSource> getLuminanceSource() const ;
+  virtual Ref<Binarizer> createBinarizer(Ref<LuminanceSource> source) = 0;
 
   int getWidth() const;
   int getHeight() const;

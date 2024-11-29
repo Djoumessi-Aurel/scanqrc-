@@ -1,5 +1,5 @@
-#ifndef ZXING_MULTI_FORMAT_ONED_READER_H
-#define ZXING_MULTI_FORMAT_ONED_READER_H
+#ifndef __MULTI_FORMAT_ONED_READER_H__
+#define __MULTI_FORMAT_ONED_READER_H__
 /*
  *  MultiFormatOneDReader.h
  *  ZXing
@@ -26,14 +26,13 @@ namespace zxing {
     class MultiFormatOneDReader : public OneDReader {
 
     private:
-      std::vector<QSharedPointer<OneDReader> > readers;
+      std::vector<Ref<OneDReader> > readers;
     public:
       MultiFormatOneDReader(DecodeHints hints);
 
-      QSharedPointer<Result> decodeRow(int rowNumber, QSharedPointer<BitArray> row, DecodeHints hints);
+      Ref<Result> decodeRow(int rowNumber, Ref<BitArray> row);
     };
   }
 }
 
-#endif // ZXING_MULTI_FORMAT_ONED_READER_H
-
+#endif

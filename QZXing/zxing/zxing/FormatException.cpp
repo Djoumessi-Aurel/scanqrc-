@@ -29,7 +29,7 @@ FormatException::FormatException(const char *msg) :
     ReaderException(msg) {
 }
 
-FormatException::~FormatException() ZXING_NOEXCEPT {
+FormatException::~FormatException() throw() {
 }
 
 FormatException const&

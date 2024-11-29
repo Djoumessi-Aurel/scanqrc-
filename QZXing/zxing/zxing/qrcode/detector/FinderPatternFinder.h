@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_FINDER_PATTERN_FINDER_H
-#define ZXING_FINDER_PATTERN_FINDER_H
+#ifndef __FINDER_PATTERN_FINDER_H__
+#define __FINDER_PATTERN_FINDER_H__
 
 /*
  *  FinderPatternFinder.h
@@ -23,7 +23,7 @@
 
 #include <zxing/qrcode/detector/FinderPattern.h>
 #include <zxing/qrcode/detector/FinderPatternInfo.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/ResultPointCallback.h>
 #include <vector>
@@ -42,11 +42,11 @@ protected:
   static int MIN_SKIP;
   static int MAX_MODULES;
 
-  QSharedPointer<BitMatrix> image_;
-  std::vector<QSharedPointer<FinderPattern> > possibleCenters_;
+  Ref<BitMatrix> image_;
+  std::vector<Ref<FinderPattern> > possibleCenters_;
   bool hasSkipped_;
 
-  QSharedPointer<ResultPointCallback> callback_;
+  Ref<ResultPointCallback> callback_;
   mutable int crossCheckStateCount[5];
 
   /** stateCount must be int[5] */
@@ -60,23 +60,21 @@ protected:
   bool handlePossibleCenter(int* stateCount, size_t i, size_t j);
   int findRowSkip();
   bool haveMultiplyConfirmedCenters();
-  std::vector<QSharedPointer<FinderPattern> > selectBestPatterns();
-  static std::vector<QSharedPointer<FinderPattern> > orderBestPatterns(std::vector<QSharedPointer<FinderPattern> > patterns);
+  std::vector<Ref<FinderPattern> > selectBestPatterns();
+  static std::vector<Ref<FinderPattern> > orderBestPatterns(std::vector<Ref<FinderPattern> > patterns);
 
-  QSharedPointer<BitMatrix> getImage();
-  std::vector<QSharedPointer<FinderPattern> >& getPossibleCenters();
+  Ref<BitMatrix> getImage();
+  std::vector<Ref<FinderPattern> >& getPossibleCenters();
 
   bool crossCheckDiagonal(int startI, int centerJ, int maxCount, int originalStateCountTotal) const;
   int *getCrossCheckStateCount() const;
 
-  static double squaredDistance(QSharedPointer<FinderPattern> a, QSharedPointer<FinderPattern> b);
-
 public:
-  static float distance(QSharedPointer<ResultPoint> p1, QSharedPointer<ResultPoint> p2);
-  FinderPatternFinder(QSharedPointer<BitMatrix> image, QSharedPointer<ResultPointCallback>const&);
-  QSharedPointer<FinderPatternInfo> find(DecodeHints const& hints);
+  static float distance(Ref<ResultPoint> p1, Ref<ResultPoint> p2);
+  FinderPatternFinder(Ref<BitMatrix> image, Ref<ResultPointCallback>const&);
+  Ref<FinderPatternInfo> find(DecodeHints const& hints);
 };
 }
 }
 
-#endif // ZXING_FINDER_PATTERN_FINDER_H
+#endif // __FINDER_PATTERN_FINDER_H__

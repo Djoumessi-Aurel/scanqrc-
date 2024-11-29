@@ -1,5 +1,5 @@
-#ifndef ZXING_MODULUS_GFPOLY_PDF_H
-#define ZXING_MODULUS_GFPOLY_PDF_H
+#ifndef __MODULUS_GFPOLY_PDF_H__
+#define __MODULUS_GFPOLY_PDF_H__
 
 /*
  * Copyright 2012 ZXing authors
@@ -19,7 +19,8 @@
  * 2012-09-17 HFN translation from Java into C++
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/DecoderResult.h>
 #include <zxing/common/BitMatrix.h>
 
@@ -34,26 +35,26 @@ class ModulusGF;
  * @author Sean Owen
  * @see com.google.zxing.common.reedsolomon.GenericGFPoly
  */
-class ModulusPoly {
+class ModulusPoly: public Counted {
 
   private:
 	ModulusGF &field_;
-	QSharedPointer<std::vector<int>> coefficients_;
+	ArrayRef<int> coefficients_;
   public:
-	ModulusPoly(ModulusGF& field, QSharedPointer<std::vector<int>> coefficients);
+	ModulusPoly(ModulusGF& field, ArrayRef<int> coefficients);
 	~ModulusPoly();
-	QSharedPointer<std::vector<int>> getCoefficients();
+	ArrayRef<int> getCoefficients();
 	int getDegree();
 	bool isZero();
 	int getCoefficient(int degree);
 	int evaluateAt(int a);
-	QSharedPointer<ModulusPoly> add(QSharedPointer<ModulusPoly> other);
-	QSharedPointer<ModulusPoly> subtract(QSharedPointer<ModulusPoly> other);
-	QSharedPointer<ModulusPoly> multiply(QSharedPointer<ModulusPoly> other);
-	QSharedPointer<ModulusPoly> negative();
-	QSharedPointer<ModulusPoly> multiply(int scalar);
-	QSharedPointer<ModulusPoly> multiplyByMonomial(int degree, int coefficient);
-	std::vector<QSharedPointer<ModulusPoly> > divide(QSharedPointer<ModulusPoly> other);
+	Ref<ModulusPoly> add(Ref<ModulusPoly> other);
+	Ref<ModulusPoly> subtract(Ref<ModulusPoly> other);
+	Ref<ModulusPoly> multiply(Ref<ModulusPoly> other);
+	Ref<ModulusPoly> negative();
+	Ref<ModulusPoly> multiply(int scalar);
+	Ref<ModulusPoly> multiplyByMonomial(int degree, int coefficient);
+	std::vector<Ref<ModulusPoly> > divide(Ref<ModulusPoly> other);
 	#if 0
     public String toString();
 	#endif
@@ -64,4 +65,4 @@ class ModulusPoly {
 }
 }
 
-#endif /* ZXING_MODULUS_GFPOLY_PDF_H */
+#endif /* __MODULUS_GFPOLY_PDF_H__ */

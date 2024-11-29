@@ -1,5 +1,5 @@
-#ifndef ZXING_DECODER_RESULT_H
-#define ZXING_DECODER_RESULT_H
+#ifndef __DECODER_RESULT_H__
+#define __DECODER_RESULT_H__
 
 /*
  *  DecoderResult.h
@@ -20,35 +20,35 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <string>
 #include <zxing/common/Str.h>
-#include <zxing/common/Types.h>
 
 namespace zxing {
 
-class DecoderResult  {
+class DecoderResult : public Counted {
 private:
-  QSharedPointer<std::vector<zxing::byte>> rawBytes_;
-  QSharedPointer<String> text_;
-  QSharedPointer<std::vector< QSharedPointer<std::vector<zxing::byte>>>> byteSegments_;
+  ArrayRef<char> rawBytes_;
+  Ref<String> text_;
+  ArrayRef< ArrayRef<char> > byteSegments_;
   std::string ecLevel_;
   std::string charSet_;
 
 public:
-  DecoderResult(QSharedPointer<std::vector<zxing::byte>> rawBytes,
-                QSharedPointer<String> text,
-                QSharedPointer<std::vector< QSharedPointer<std::vector<zxing::byte>>>>& byteSegments,
+  DecoderResult(ArrayRef<char> rawBytes,
+                Ref<String> text,
+                ArrayRef< ArrayRef<char> >& byteSegments,
                 std::string const& ecLevel,
                 std::string charSet = "");
 
-  DecoderResult(QSharedPointer<std::vector<zxing::byte>> rawBytes, QSharedPointer<String> text);
+  DecoderResult(ArrayRef<char> rawBytes, Ref<String> text);
 
-  QSharedPointer<std::vector<zxing::byte>> getRawBytes();
-  QSharedPointer<String> getText();
+  ArrayRef<char> getRawBytes();
+  Ref<String> getText();
   std::string charSet();
 };
 
 }
 
-#endif // ZXING_DECODER_RESULT_H
+#endif // __DECODER_RESULT_H__

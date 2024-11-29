@@ -17,6 +17,7 @@
 
 #include "Code93Reader.h"
 #include <zxing/oned/OneDResultPoint.h>
+#include <zxing/common/Array.h>
 #include <zxing/ReaderException.h>
 #include <zxing/FormatException.h>
 #include <zxing/NotFoundException.h>
@@ -26,7 +27,7 @@
 
 using std::vector;
 using std::string;
-
+using zxing::Ref;
 using zxing::Result;
 using zxing::String;
 using zxing::NotFoundException;
@@ -63,7 +64,7 @@ Code93Reader::Code93Reader() {
   counters.resize(6);
 }
 
-QSharedPointer<Result> Code93Reader::decodeRow(int rowNumber, QSharedPointer<BitArray> row, zxing::DecodeHints /*hints*/) {
+Ref<Result> Code93Reader::decodeRow(int rowNumber, Ref<BitArray> row) {
   Range start (findAsteriskPattern(row));
   // Read off white space    
   int nextStart = row->getNextSet(start[1]);
@@ -71,7 +72,7 @@ QSharedPointer<Result> Code93Reader::decodeRow(int rowNumber, QSharedPointer<Bit
 
   vector<int>& theCounters (counters);
   { // Arrays.fill(counters, 0);
-    int size = int(theCounters.size());
+    int size = theCounters.size();
     theCounters.resize(0);
     theCounters.resize(size); }
   string& result (decodeRowResult);
@@ -88,7 +89,7 @@ QSharedPointer<Result> Code93Reader::decodeRow(int rowNumber, QSharedPointer<Bit
     decodedChar = patternToChar(pattern);
     result.append(1, decodedChar);
     lastStart = nextStart;
-    for(int i=0, e=int(theCounters.size()); i < e; ++i) {
+    for(int i=0, e=theCounters.size(); i < e; ++i) {
       nextStart += theCounters[i];
     }
     // Read off white space
@@ -98,7 +99,7 @@ QSharedPointer<Result> Code93Reader::decodeRow(int rowNumber, QSharedPointer<Bit
 
   // Look for whitespace after pattern:
   int lastPatternSize = 0;
-  for (int i = 0, e = int(theCounters.size()); i < e; i++) {
+  for (int i = 0, e = theCounters.size(); i < e; i++) {
     lastPatternSize += theCounters[i];
   }
   
@@ -116,35 +117,37 @@ QSharedPointer<Result> Code93Reader::decodeRow(int rowNumber, QSharedPointer<Bit
   // Remove checksum digits
   result.resize(result.length() - 2);
 
-  QSharedPointer<String> resultString = decodeExtended(result);
+  Ref<String> resultString = decodeExtended(result);
 
   float left = (float) (start[1] + start[0]) / 2.0f;
   float right = lastStart + lastPatternSize / 2.0f;
 
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>>> resultPoints (new std::vector<QSharedPointer<ResultPoint>>(2));
-  (*resultPoints)[0].reset(new OneDResultPoint(left, (float) rowNumber));
-  (*resultPoints)[1].reset(new OneDResultPoint(right, (float) rowNumber));
+  ArrayRef< Ref<ResultPoint> > resultPoints (2);
+  resultPoints[0] = 
+    Ref<OneDResultPoint>(new OneDResultPoint(left, (float) rowNumber));
+  resultPoints[1] =
+    Ref<OneDResultPoint>(new OneDResultPoint(right, (float) rowNumber));
   
-  return QSharedPointer<Result>(new Result(
+  return Ref<Result>(new Result(
                        resultString,
-                       QSharedPointer<std::vector<zxing::byte>>(),
+                       ArrayRef<char>(),
                        resultPoints,
                        BarcodeFormat::CODE_93));
 }
 
-Code93Reader::Range Code93Reader::findAsteriskPattern(QSharedPointer<BitArray> row)  {
+Code93Reader::Range Code93Reader::findAsteriskPattern(Ref<BitArray> row)  {
   int width = row->getSize();
   int rowOffset = row->getNextSet(0);
 
   { // Arrays.fill(counters, 0);
-    int size = int(counters.size());
+    int size = counters.size();
     counters.resize(0);
     counters.resize(size); }
   vector<int>& theCounters (counters);
 
   int patternStart = rowOffset;
   bool isWhite = false;
-  int patternLength = int(theCounters.size());
+  int patternLength = theCounters.size();
 
   int counterPosition = 0;
   for (int i = rowOffset; i < width; i++) {
@@ -173,9 +176,9 @@ Code93Reader::Range Code93Reader::findAsteriskPattern(QSharedPointer<BitArray> r
 }
 
 int Code93Reader::toPattern(vector<int>& counters) {
-  int max = int(counters.size());
+  int max = counters.size();
   int sum = 0;
-  for(int i=0, e=int(counters.size()); i<e; ++i) {
+  for(int i=0, e=counters.size(); i<e; ++i) {
     sum += counters[i];
   }
   int pattern = 0;
@@ -208,8 +211,8 @@ char Code93Reader::patternToChar(int pattern)  {
   throw NotFoundException();
 }
 
-QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
-  int length = int(encoded.length());
+Ref<String> Code93Reader::decodeExtended(string const& encoded)  {
+  int length = encoded.length();
   string decoded;
   for (int i = 0; i < length; i++) {
     char c = encoded[i];
@@ -223,7 +226,7 @@ QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
       case 'd':
         // +A to +Z map to a to z
         if (next >= 'A' && next <= 'Z') {
-          decodedChar = (zxing::byte) (next + 32);
+          decodedChar = (char) (next + 32);
         } else {
           throw FormatException::getFormatInstance();
         }
@@ -231,7 +234,7 @@ QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
       case 'a':
         // $A to $Z map to control codes SH to SB
         if (next >= 'A' && next <= 'Z') {
-          decodedChar = (zxing::byte) (next - 64);
+          decodedChar = (char) (next - 64);
         } else {
           throw FormatException::getFormatInstance();
         }
@@ -239,9 +242,9 @@ QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
       case 'b':
         // %A to %E map to control codes ESC to US
         if (next >= 'A' && next <= 'E') {
-          decodedChar = (zxing::byte) (next - 38);
+          decodedChar = (char) (next - 38);
         } else if (next >= 'F' && next <= 'W') {
-          decodedChar = (zxing::byte) (next - 11);
+          decodedChar = (char) (next - 11);
         } else {
           throw FormatException::getFormatInstance();
         }
@@ -249,7 +252,7 @@ QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
       case 'c':
         // /A to /O map to ! to , and /Z maps to :
         if (next >= 'A' && next <= 'O') {
-          decodedChar = (zxing::byte) (next - 32);
+          decodedChar = (char) (next - 32);
         } else if (next == 'Z') {
           decodedChar = ':';
         } else {
@@ -264,11 +267,11 @@ QSharedPointer<String> Code93Reader::decodeExtended(string const& encoded)  {
       decoded.append(1, c);
     }
   }
-  return QSharedPointer<String>(new String(decoded));
+  return Ref<String>(new String(decoded));
 }
 
 void Code93Reader::checkChecksums(string const& result) {
-  int length = int(result.length());
+  int length = result.length();
   checkOneChecksum(result, length - 2, 20);
   checkOneChecksum(result, length - 1, 15);
 }
@@ -279,7 +282,7 @@ void Code93Reader::checkOneChecksum(string const& result,
   int weight = 1;
   int total = 0;
   for (int i = checkPosition - 1; i >= 0; i--) {
-    total += weight * int(ALPHABET_STRING.find_first_of(result[i]));
+    total += weight * ALPHABET_STRING.find_first_of(result[i]);
     if (++weight > weightMax) {
       weight = 1;
     }

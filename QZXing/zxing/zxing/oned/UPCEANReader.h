@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_UPC_EAN_READER_H
-#define ZXING_UPC_EAN_READER_H
+#ifndef __UPC_EAN_READER_H__
+#define __UPC_EAN_READER_H__
 
 /*
  *  Copyright 2010 ZXing authors All rights reserved.
@@ -19,8 +19,6 @@
  */
 
 #include <zxing/oned/OneDReader.h>
-#include <zxing/oned/UPCEANExtensionSupport.h>
-#include <zxing/oned/EANManufacturerOrgSupport.h>
 #include <zxing/common/BitArray.h>
 #include <zxing/Result.h>
 
@@ -30,33 +28,33 @@ namespace oned {
 class UPCEANReader : public OneDReader {
  private:
   std::string decodeRowStringBuffer;
-  UPCEANExtensionSupport extensionReader;
-  EANManufacturerOrgSupport eanManSupport;
+  // UPCEANExtensionSupport extensionReader;
+  // EANManufacturerOrgSupport eanManSupport;
 
   static const int MAX_AVG_VARIANCE;
   static const int MAX_INDIVIDUAL_VARIANCE;
 
-  static Range findStartGuardPattern(QSharedPointer<BitArray> row);
+  static Range findStartGuardPattern(Ref<BitArray> row);
 
-  virtual Range decodeEnd(QSharedPointer<BitArray> row, int endStart);
+  virtual Range decodeEnd(Ref<BitArray> row, int endStart);
 
-  static bool checkStandardUPCEANChecksum(QSharedPointer<String> const& s);
+  static bool checkStandardUPCEANChecksum(Ref<String> const& s);
 
-  static Range findGuardPattern(QSharedPointer<BitArray> row,
+  static Range findGuardPattern(Ref<BitArray> row,
                                 int rowOffset,
                                 bool whiteFirst,
                                 std::vector<int> const& pattern,
                                 std::vector<int>& counters);
 
 
-public:
+protected:
   static const std::vector<int> START_END_PATTERN;
   static const std::vector<int> MIDDLE_PATTERN;
 
   static const std::vector<int const*> L_PATTERNS;
   static const std::vector<int const*> L_AND_G_PATTERNS;
 
-  static Range findGuardPattern(QSharedPointer<BitArray> row,
+  static Range findGuardPattern(Ref<BitArray> row,
                                 int rowOffset,
                                 bool whiteFirst,
                                 std::vector<int> const& pattern);
@@ -64,19 +62,19 @@ public:
 public:
   UPCEANReader();
 
-  virtual int decodeMiddle(QSharedPointer<BitArray> row,
+  virtual int decodeMiddle(Ref<BitArray> row,
                            Range const& startRange,
                            std::string& resultString) = 0;
 
-  virtual QSharedPointer<Result> decodeRow(int rowNumber, QSharedPointer<BitArray> row, zxing::DecodeHints hints);
-  virtual QSharedPointer<Result> decodeRow(int rowNumber, QSharedPointer<BitArray> row, Range const& range, zxing::DecodeHints hints = DecodeHints());
+  virtual Ref<Result> decodeRow(int rowNumber, Ref<BitArray> row);
+  virtual Ref<Result> decodeRow(int rowNumber, Ref<BitArray> row, Range const& range);
 
-  static int decodeDigit(QSharedPointer<BitArray> row,
+  static int decodeDigit(Ref<BitArray> row,
                          std::vector<int>& counters,
                          int rowOffset,
                          std::vector<int const*> const& patterns);
 
-  virtual bool checkChecksum(QSharedPointer<String> const& s);
+  virtual bool checkChecksum(Ref<String> const& s);
 
   virtual BarcodeFormat getBarcodeFormat() = 0;
   virtual ~UPCEANReader();
@@ -87,5 +85,4 @@ public:
 }
 }
 
-#endif // ZXING_UPC_EAN_READER_H
-
+#endif

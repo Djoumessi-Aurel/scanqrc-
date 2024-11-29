@@ -18,12 +18,11 @@
 #include <zxing/ZXing.h>
 #include <zxing/oned/Code128Reader.h>
 #include <zxing/oned/OneDResultPoint.h>
+#include <zxing/common/Array.h>
 #include <zxing/ReaderException.h>
 #include <zxing/NotFoundException.h>
 #include <zxing/FormatException.h>
 #include <zxing/ChecksumException.h>
-#include <zxing/DecodeHints.h>
-#include <zxing/BarcodeFormat.h>
 #include <math.h>
 #include <string.h>
 #include <sstream>
@@ -34,7 +33,7 @@ using std::string;
 using zxing::NotFoundException;
 using zxing::FormatException;
 using zxing::ChecksumException;
-
+using zxing::Ref;
 using zxing::Result;
 using zxing::oned::Code128Reader;
 
@@ -178,7 +177,7 @@ const int CODE_PATTERNS[CODE_PATTERNS_LENGTH][6] = {
 
 Code128Reader::Code128Reader(){}
 
-vector<int> Code128Reader::findStartPattern(QSharedPointer<BitArray> row){
+vector<int> Code128Reader::findStartPattern(Ref<BitArray> row){
   int width = row->getSize();
   int rowOffset = row->getNextSet(0);
 
@@ -186,7 +185,7 @@ vector<int> Code128Reader::findStartPattern(QSharedPointer<BitArray> row){
   vector<int> counters (6, 0);
   int patternStart = rowOffset;
   bool isWhite = false;
-  int patternLength = int(counters.size());
+  int patternLength =  counters.size();
 
   for (int i = rowOffset; i < width; i++) {
     if (row->get(i) ^ isWhite) {
@@ -228,7 +227,7 @@ vector<int> Code128Reader::findStartPattern(QSharedPointer<BitArray> row){
   throw NotFoundException();
 }
 
-int Code128Reader::decodeCode(QSharedPointer<BitArray> row, vector<int>& counters, int rowOffset) {
+int Code128Reader::decodeCode(Ref<BitArray> row, vector<int>& counters, int rowOffset) {
   recordPattern(row, rowOffset, counters);
   int bestVariance = MAX_AVG_VARIANCE; // worst variance we'll accept
   int bestMatch = -1;
@@ -248,9 +247,9 @@ int Code128Reader::decodeCode(QSharedPointer<BitArray> row, vector<int>& counter
   }
 }
 
-QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<BitArray> row, zxing::DecodeHints hints) {
-  bool convertFNC1 = hints.containsFormat(zxing::BarcodeFormat(zxing::BarcodeFormat::Value::ASSUME_GS1));
-
+Ref<Result> Code128Reader::decodeRow(int rowNumber, Ref<BitArray> row) {
+  // boolean convertFNC1 = hints != null && hints.containsKey(DecodeHintType.ASSUME_GS1);
+  boolean convertFNC1 = false;
   vector<int> startPatternInfo (findStartPattern(row));
   int startCode = startPatternInfo[2];
   int codeSet;
@@ -272,7 +271,7 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
   bool isNextShifted = false;
 
   string result;
-  vector<zxing::byte> rawCodes(20, 0);
+  vector<char> rawCodes(20, 0);
 
   int lastStart = startPatternInfo[0];
   int nextStart = startPatternInfo[1];
@@ -283,8 +282,6 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
   int checksumTotal = startCode;
   int multiplier = 0;
   bool lastCharacterWasPrintable = true;
-  bool upperMode = false;
-  bool shiftUpperMode = false;
 
   std::ostringstream oss;
 
@@ -311,7 +308,7 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
 
     // Advance to where the next code will to start
     lastStart = nextStart;
-    for (int i = 0, e = int(counters.size()); i < e; i++) {
+    for (int i = 0, e = counters.size(); i < e; i++) {
       nextStart += counters[i];
     }
 
@@ -327,19 +324,9 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
 
       case CODE_CODE_A:
         if (code < 64) {
-            if (shiftUpperMode == upperMode) {
-              result.append(1,(zxing::byte) (' ' + code));
-            } else {
-              result.append(1,(zxing::byte) (' ' + code + 128));
-            }
-            shiftUpperMode = false;
+          result.append(1, (char) (' ' + code));
         } else if (code < 96) {
-            if (shiftUpperMode == upperMode) {
-              result.append(1, (zxing::byte) (code - 64));
-            } else {
-              result.append(1, (zxing::byte) (code + 64));
-            }
-            shiftUpperMode = false;
+          result.append(1, (char) (code - 64));
         } else {
           // Don't let CODE_STOP, which always appears, affect whether whether we think the
           // last code was printable or not.
@@ -355,23 +342,14 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
                   result.append("]C1");
                 } else {
                   // GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-                  result.append(1, (zxing::byte) 29);
+                  result.append(1, (char) 29);
                 }
               }
               break;
             case CODE_FNC_2:
             case CODE_FNC_3:
-              break;
             case CODE_FNC_4_A:
-              if (!upperMode && shiftUpperMode) {
-                upperMode = true;
-                shiftUpperMode = false;
-              } else if (upperMode && shiftUpperMode) {
-                upperMode = false;
-                shiftUpperMode = false;
-              } else {
-                shiftUpperMode = true;
-              }
+              // do nothing?
               break;
             case CODE_SHIFT:
               isNextShifted = true;
@@ -391,42 +369,17 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
         break;
       case CODE_CODE_B:
         if (code < 96) {
-            if (shiftUpperMode == upperMode) {
-              result.append(1, (zxing::byte) (' ' + code));
-            } else {
-              result.append(1, (zxing::byte) (' ' + code + 128));
-            }
-            shiftUpperMode = false;
+          result.append(1, (char) (' ' + code));
         } else {
           if (code != CODE_STOP) {
             lastCharacterWasPrintable = false;
           }
           switch (code) {
-          case CODE_FNC_1:
-              if (convertFNC1) {
-                if (result.length() == 0) {
-                  // GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
-                  // is FNC1 then this is GS1-128. We add the symbology identifier.
-                  result.append("]C1");
-                } else {
-                  // GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-                  result.append(1, (zxing::byte) 29);
-                }
-              }
-              break;
+            case CODE_FNC_1:
             case CODE_FNC_2:
             case CODE_FNC_3:
-              break;
             case CODE_FNC_4_B:
-              if (!upperMode && shiftUpperMode) {
-                upperMode = true;
-                shiftUpperMode = false;
-              } else if (upperMode && shiftUpperMode) {
-                upperMode = false;
-                shiftUpperMode = false;
-              } else {
-                shiftUpperMode = true;
-              }
+              // do nothing?
               break;
             case CODE_SHIFT:
               isNextShifted = true;
@@ -459,16 +412,7 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
           }
           switch (code) {
             case CODE_FNC_1:
-              if (convertFNC1) {
-                if (result.length() == 0) {
-                  // GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
-                  // is FNC1 then this is GS1-128. We add the symbology identifier.
-                  result.append("]C1");
-                } else {
-                  // GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-                  result.append(1, (zxing::byte) 29);
-                }
-              }
+              // do nothing?
               break;
             case CODE_CODE_A:
               codeSet = CODE_CODE_A;
@@ -531,16 +475,18 @@ QSharedPointer<Result> Code128Reader::decodeRow(int rowNumber, QSharedPointer<Bi
   float right = lastStart + lastPatternSize / 2.0f;
 
   int rawCodesSize = rawCodes.size();
-  QSharedPointer<std::vector<zxing::byte>> rawBytes (new std::vector<zxing::byte>(rawCodesSize));
+  ArrayRef<char> rawBytes (rawCodesSize);
   for (int i = 0; i < rawCodesSize; i++) {
-    (*rawBytes)[i] = rawCodes[i];
+    rawBytes[i] = rawCodes[i];
   }
 
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>>> resultPoints(new std::vector<QSharedPointer<ResultPoint>>(2));
-  (*resultPoints)[0].reset(new OneDResultPoint(left, (float) rowNumber));
-  (*resultPoints)[1].reset(new OneDResultPoint(right, (float) rowNumber));
+  ArrayRef< Ref<ResultPoint> > resultPoints(2);
+  resultPoints[0] =
+      Ref<OneDResultPoint>(new OneDResultPoint(left, (float) rowNumber));
+  resultPoints[1] =
+      Ref<OneDResultPoint>(new OneDResultPoint(right, (float) rowNumber));
 
-  return QSharedPointer<Result>(new Result(QSharedPointer<String>(new String(result)), rawBytes, resultPoints,
+  return Ref<Result>(new Result(Ref<String>(new String(result)), rawBytes, resultPoints,
                                 BarcodeFormat::CODE_128));
 }
 

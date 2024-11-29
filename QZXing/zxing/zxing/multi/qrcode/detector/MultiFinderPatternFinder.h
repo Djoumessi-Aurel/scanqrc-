@@ -1,5 +1,5 @@
-#ifndef ZXING_MULTI_FINDER_PATTERN_FINDER_H
-#define ZXING_MULTI_FINDER_PATTERN_FINDER_H
+#ifndef __MULTI_FINDER_PATTERN_FINDER_H__
+#define __MULTI_FINDER_PATTERN_FINDER_H__
 
 /*
  *  Copyright 2011 ZXing authors
@@ -26,7 +26,7 @@ namespace multi {
 
 class MultiFinderPatternFinder : zxing::qrcode::FinderPatternFinder {
   private:
-    std::vector<std::vector<QSharedPointer<zxing::qrcode::FinderPattern> > > selectBestPatterns();
+    std::vector<std::vector<Ref<zxing::qrcode::FinderPattern> > > selectBestPatterns();
 
     static const float MAX_MODULE_COUNT_PER_EDGE;
     static const float MIN_MODULE_COUNT_PER_EDGE;
@@ -34,9 +34,9 @@ class MultiFinderPatternFinder : zxing::qrcode::FinderPatternFinder {
     static const float DIFF_MODSIZE_CUTOFF;
 
   public:
-    MultiFinderPatternFinder(QSharedPointer<BitMatrix> image, QSharedPointer<ResultPointCallback> resultPointCallback);
+    MultiFinderPatternFinder(Ref<BitMatrix> image, Ref<ResultPointCallback> resultPointCallback);
     virtual ~MultiFinderPatternFinder();
-    virtual std::vector<QSharedPointer<zxing::qrcode::FinderPatternInfo> > findMulti(DecodeHints const& hints);
+    virtual std::vector<Ref<zxing::qrcode::FinderPatternInfo> > findMulti(DecodeHints const& hints);
 
 
 };
@@ -44,4 +44,4 @@ class MultiFinderPatternFinder : zxing::qrcode::FinderPatternFinder {
 }
 }
 
-#endif // ZXING_MULTI_FINDER_PATTERN_FINDER_H
+#endif // __MULTI_FINDER_PATTERN_FINDER_H__

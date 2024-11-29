@@ -23,62 +23,44 @@
 #include <zxing/InvertedLuminanceSource.h>
 #include <zxing/common/IllegalArgumentException.h>
 
+using zxing::Ref;
 using zxing::LuminanceSource;
 
-LuminanceSource::LuminanceSource(int width_, int height_) : width(width_), height(height_) {}
+LuminanceSource::LuminanceSource(int width_, int height_) :width(width_), height(height_) {}
 
 LuminanceSource::~LuminanceSource() {}
 
-bool LuminanceSource::isCropSupported() const
-{
+bool LuminanceSource::isCropSupported() const {
   return false;
 }
 
-QSharedPointer<LuminanceSource> LuminanceSource::crop(int, int, int, int) const
-{
+Ref<LuminanceSource> LuminanceSource::crop(int, int, int, int) const {
   throw IllegalArgumentException("This luminance source does not support cropping.");
 }
 
-bool LuminanceSource::isRotateSupported() const
-{
+bool LuminanceSource::isRotateSupported() const {
   return false;
 }
 
-QSharedPointer<LuminanceSource> LuminanceSource::rotateCounterClockwise() const
-{
+Ref<LuminanceSource> LuminanceSource::rotateCounterClockwise() const {
   throw IllegalArgumentException("This luminance source does not support rotation.");
 }
 
-QSharedPointer<zxing::LuminanceSource> LuminanceSource::rotateCounterClockwise45() const
-{
-  throw IllegalArgumentException("This luminance source does not support rotation 45.");
-}
-
-LuminanceSource::operator std::string() const
-{
-  QSharedPointer<std::vector<zxing::byte>> row;
+LuminanceSource::operator std::string() const {
+  ArrayRef<char> row;
   std::ostringstream oss;
-  for (int y = 0; y < getHeight(); y++)
-  {
+  for (int y = 0; y < getHeight(); y++) {
     row = getRow(y, row);
-    for (int x = 0; x < getWidth(); x++)
-    {
-      int luminance = (*row)[x]; // & 0xFF;
+    for (int x = 0; x < getWidth(); x++) {
+      int luminance = row[x] & 0xFF;
       char c;
-      if (luminance < 0x40)
-      {
+      if (luminance < 0x40) {
         c = '#';
-      }
-      else if (luminance < 0x80)
-      {
+      } else if (luminance < 0x80) {
         c = '+';
-      }
-      else if (luminance < 0xC0)
-      {
+      } else if (luminance < 0xC0) {
         c = '.';
-      }
-      else
-      {
+      } else {
         c = ' ';
       }
       oss << c;
@@ -88,8 +70,7 @@ LuminanceSource::operator std::string() const
   return oss.str();
 }
 
-QSharedPointer<LuminanceSource> LuminanceSource::invert() const
-{
+Ref<LuminanceSource> LuminanceSource::invert() const {
 
   // N.B.: this only works because we use counted objects with the
   // count in the object. This is _not_ how things like shared_ptr
@@ -100,5 +81,6 @@ QSharedPointer<LuminanceSource> LuminanceSource::invert() const
   // needed. And, FWIW, that has nasty semantics in the face of
   // exceptions during construction.
 
-  return QSharedPointer<LuminanceSource>(new InvertedLuminanceSource(QSharedPointer<LuminanceSource>(const_cast<LuminanceSource *>(this))));
+  return Ref<LuminanceSource>
+      (new InvertedLuminanceSource(Ref<LuminanceSource>(const_cast<LuminanceSource*>(this))));
 }

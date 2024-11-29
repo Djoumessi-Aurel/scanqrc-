@@ -1,5 +1,5 @@
-#ifndef ZXING_MULTIPLE_BARCODE_READER_H
-#define ZXING_MULTIPLE_BARCODE_READER_H
+#ifndef __MULTIPLE_BARCODE_READER_H__
+#define __MULTIPLE_BARCODE_READER_H__
 
 /*
  *  Copyright 2011 ZXing authors All rights reserved.
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/Result.h>
 #include <zxing/BinaryBitmap.h>
 #include <zxing/DecodeHints.h>
@@ -26,16 +26,16 @@
 namespace zxing {
 namespace multi {
 
-class MultipleBarcodeReader  {
+class MultipleBarcodeReader : public Counted {
   protected:
     MultipleBarcodeReader() {}
   public:
-    virtual std::vector<QSharedPointer<Result> > decodeMultiple(QSharedPointer<BinaryBitmap> image);
-    virtual std::vector<QSharedPointer<Result> > decodeMultiple(QSharedPointer<BinaryBitmap> image, DecodeHints hints) = 0;
+    virtual std::vector<Ref<Result> > decodeMultiple(Ref<BinaryBitmap> image);
+    virtual std::vector<Ref<Result> > decodeMultiple(Ref<BinaryBitmap> image, DecodeHints hints) = 0;
     virtual ~MultipleBarcodeReader();
 };
 
 }
 }
 
-#endif // ZXING_MULTIPLE_BARCODE_READER_H
+#endif // __MULTIPLE_BARCODE_READER_H__

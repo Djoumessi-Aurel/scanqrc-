@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_DETECTOR_H
-#define ZXING_DETECTOR_H
+#ifndef __DETECTOR_H__
+#define __DETECTOR_H__
 
 /*
  *  Detector.h
@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/common/DetectorResult.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/qrcode/detector/AlignmentPattern.h>
@@ -35,35 +35,35 @@ class DecodeHints;
 
 namespace qrcode {
 
-class Detector  {
+class Detector : public Counted {
 private:
-  QSharedPointer<BitMatrix> image_;
-  QSharedPointer<ResultPointCallback> callback_;
+  Ref<BitMatrix> image_;
+  Ref<ResultPointCallback> callback_;
 
 protected:
-  QSharedPointer<BitMatrix> getImage() const;
-  QSharedPointer<ResultPointCallback> getResultPointCallback() const;
+  Ref<BitMatrix> getImage() const;
+  Ref<ResultPointCallback> getResultPointCallback() const;
 
-  static QSharedPointer<BitMatrix> sampleGrid(QSharedPointer<BitMatrix> image, int dimension, QSharedPointer<PerspectiveTransform>);
-  static int computeDimension(QSharedPointer<ResultPoint> topLeft, QSharedPointer<ResultPoint> topRight, QSharedPointer<ResultPoint> bottomLeft,
+  static Ref<BitMatrix> sampleGrid(Ref<BitMatrix> image, int dimension, Ref<PerspectiveTransform>);
+  static int computeDimension(Ref<ResultPoint> topLeft, Ref<ResultPoint> topRight, Ref<ResultPoint> bottomLeft,
                               float moduleSize);
-  float calculateModuleSize(QSharedPointer<ResultPoint> topLeft, QSharedPointer<ResultPoint> topRight, QSharedPointer<ResultPoint> bottomLeft);
-  float calculateModuleSizeOneWay(QSharedPointer<ResultPoint> pattern, QSharedPointer<ResultPoint> otherPattern);
+  float calculateModuleSize(Ref<ResultPoint> topLeft, Ref<ResultPoint> topRight, Ref<ResultPoint> bottomLeft);
+  float calculateModuleSizeOneWay(Ref<ResultPoint> pattern, Ref<ResultPoint> otherPattern);
   float sizeOfBlackWhiteBlackRunBothWays(int fromX, int fromY, int toX, int toY);
   float sizeOfBlackWhiteBlackRun(int fromX, int fromY, int toX, int toY);
-  QSharedPointer<AlignmentPattern> findAlignmentInRegion(float overallEstModuleSize, int estAlignmentX, int estAlignmentY,
+  Ref<AlignmentPattern> findAlignmentInRegion(float overallEstModuleSize, int estAlignmentX, int estAlignmentY,
       float allowanceFactor);
-  QSharedPointer<DetectorResult> processFinderPatternInfo(QSharedPointer<FinderPatternInfo> info);
+  Ref<DetectorResult> processFinderPatternInfo(Ref<FinderPatternInfo> info);
 public:
-  virtual QSharedPointer<PerspectiveTransform> createTransform(QSharedPointer<ResultPoint> topLeft, QSharedPointer<ResultPoint> topRight, QSharedPointer <
-      ResultPoint > bottomLeft, QSharedPointer<ResultPoint> alignmentPattern, int dimension);
+  virtual Ref<PerspectiveTransform> createTransform(Ref<ResultPoint> topLeft, Ref<ResultPoint> topRight, Ref <
+      ResultPoint > bottomLeft, Ref<ResultPoint> alignmentPattern, int dimension);
 
-  Detector(QSharedPointer<BitMatrix> image);
-  QSharedPointer<DetectorResult> detect(DecodeHints const& hints);
+  Detector(Ref<BitMatrix> image);
+  Ref<DetectorResult> detect(DecodeHints const& hints);
 
 
 };
 }
 }
 
-#endif // ZXING_DETECTOR_H
+#endif // __DETECTOR_H__

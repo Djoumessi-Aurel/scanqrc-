@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_BARCODE_FORMAT_H
-#define ZXING_BARCODE_FORMAT_H
+#ifndef __BARCODE_FORMAT_H__
+#define __BARCODE_FORMAT_H__
 
 /*
  *  BarcodeFormat.h
@@ -45,8 +45,7 @@ public:
     RSS_EXPANDED,
     UPC_A,
     UPC_E,
-    UPC_EAN_EXTENSION,
-    ASSUME_GS1
+    UPC_EAN_EXTENSION
   };
 
   BarcodeFormat(Value v) : value(v) {}  
@@ -58,4 +57,4 @@ public:
 
 }
 
-#endif // ZXING_BARCODE_FORMAT_H
+#endif // __BARCODE_FORMAT_H__

@@ -18,6 +18,7 @@
 #include <zxing/ZXing.h>
 #include <zxing/oned/CodaBarReader.h>
 #include <zxing/oned/OneDResultPoint.h>
+#include <zxing/common/Array.h>
 #include <zxing/ReaderException.h>
 #include <zxing/NotFoundException.h>
 #include <zxing/FormatException.h>
@@ -30,7 +31,7 @@ using std::string;
 using zxing::NotFoundException;
 using zxing::FormatException;
 using zxing::ChecksumException;
-
+using zxing::Ref;
 using zxing::Result;
 using zxing::oned::CodaBarReader;
 
@@ -75,10 +76,10 @@ const int CodaBarReader::PADDING =
 CodaBarReader::CodaBarReader() 
   : counters(80, 0), counterLength(0) {}
 
-QSharedPointer<Result> CodaBarReader::decodeRow(int rowNumber, QSharedPointer<BitArray> row, zxing::DecodeHints /*hints*/) {
+Ref<Result> CodaBarReader::decodeRow(int rowNumber, Ref<BitArray> row) {
 
   { // Arrays.fill(counters, 0);
-    int size = int(counters.size());
+    int size = counters.size();
     counters.resize(0);
     counters.resize(size); }
 
@@ -95,7 +96,7 @@ QSharedPointer<Result> CodaBarReader::decodeRow(int rowNumber, QSharedPointer<Bi
     // Hack: We store the position in the alphabet table into a
     // StringBuilder, so that we can access the decoded patterns in
     // validatePattern. We'll translate to the actual characters later.
-    decodeRowResult.append(1, (zxing::byte)charOffset);
+    decodeRowResult.append(1, (char)charOffset);
     nextStart += 8;
     // Stop as soon as we see the end character.
     if (decodeRowResult.length() > 1 &&
@@ -153,12 +154,14 @@ QSharedPointer<Result> CodaBarReader::decodeRow(int rowNumber, QSharedPointer<Bi
   }
   float right = (float) runningCount;
 
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>>> resultPoints(new std::vector<QSharedPointer<ResultPoint>>(2));
-  (*resultPoints)[0].reset(new OneDResultPoint(left, (float) rowNumber));
-  (*resultPoints)[1].reset(new OneDResultPoint(right, (float) rowNumber));
+  ArrayRef< Ref<ResultPoint> > resultPoints(2);
+  resultPoints[0] =
+    Ref<OneDResultPoint>(new OneDResultPoint(left, (float) rowNumber));
+  resultPoints[1] =
+    Ref<OneDResultPoint>(new OneDResultPoint(right, (float) rowNumber));
 
-  return QSharedPointer<Result>(new Result(QSharedPointer<String>(new String(decodeRowResult)),
-                                QSharedPointer<std::vector<zxing::byte>>(),
+  return Ref<Result>(new Result(Ref<String>(new String(decodeRowResult)),
+                                ArrayRef<char>(),
                                 resultPoints,
                                 BarcodeFormat::CODABAR));
 }
@@ -167,7 +170,7 @@ void CodaBarReader::validatePattern(int start)  {
   // First, sum up the total size of our four categories of stripe sizes;
   vector<int> sizes (4, 0);
   vector<int> counts (4, 0);
-  int end = int(decodeRowResult.length()) - 1;
+  int end = decodeRowResult.length() - 1;
 
   // We break out of this loop in the middle, in order to handle
   // inter-character spaces properly.
@@ -230,7 +233,7 @@ void CodaBarReader::validatePattern(int start)  {
  * uses our builtin "counters" member for storage.
  * @param row row to count from
  */
-void CodaBarReader::setCounters(QSharedPointer<BitArray> row)  {
+void CodaBarReader::setCounters(Ref<BitArray> row)  {
   counterLength = 0;
   // Start from the first white bit.
   int i = row->getNextUnset(0);

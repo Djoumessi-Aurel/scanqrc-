@@ -1,5 +1,5 @@
-#ifndef ZXING_MODULUS_GF_PDF_H
-#define ZXING_MODULUS_GF_PDF_H
+#ifndef __MODULUS_GF_PDF_H__
+#define __MODULUS_GF_PDF_H__
 /*
  * Copyright 2012 ZXing authors
  *
@@ -18,7 +18,8 @@
  * 2012-09-17 HFN translation from Java into C++
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/DecoderResult.h>
 #include <zxing/common/BitMatrix.h>
 
@@ -41,17 +42,17 @@ class ModulusGF {
 	static ModulusGF PDF417_GF;
 
   private:
-	QSharedPointer<std::vector<int>> expTable_;
-	QSharedPointer<std::vector<int>> logTable_;
-	QSharedPointer<ModulusPoly> zero_;
-	QSharedPointer<ModulusPoly> one_;
+	ArrayRef<int> expTable_;
+	ArrayRef<int> logTable_;
+	Ref<ModulusPoly> zero_;
+	Ref<ModulusPoly> one_;
 	int modulus_;
 
   public:
 	ModulusGF(int modulus, int generator);
-	QSharedPointer<ModulusPoly> getZero();
-	QSharedPointer<ModulusPoly> getOne();
-	QSharedPointer<ModulusPoly> buildMonomial(int degree, int coefficient);
+	Ref<ModulusPoly> getZero();
+	Ref<ModulusPoly> getOne();
+	Ref<ModulusPoly> buildMonomial(int degree, int coefficient);
 
 	int add(int a, int b);
 	int subtract(int a, int b);
@@ -68,4 +69,4 @@ class ModulusGF {
 }
 }
 
-#endif /* ZXING_MODULUS_GF_PDF_H */
+#endif /* __MODULUS_GF_PDF_H__ */

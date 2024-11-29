@@ -26,10 +26,10 @@ namespace zxing {
 namespace qrcode {
 
 int BitMatrixParser::copyBit(size_t x, size_t y, int versionBits) {
-  return bitMatrix_->get(int(x), int(y)) ? (versionBits << 1) | 0x1 : versionBits << 1;
+  return bitMatrix_->get(x, y) ? (versionBits << 1) | 0x1 : versionBits << 1;
 }
 
-BitMatrixParser::BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix) :
+BitMatrixParser::BitMatrixParser(Ref<BitMatrix> bitMatrix) :
     bitMatrix_(bitMatrix), parsedVersion_(0), parsedFormatInfo_() {
   size_t dimension = bitMatrix->getHeight();
   if ((dimension < 21) || (dimension & 0x03) != 1) {
@@ -37,7 +37,7 @@ BitMatrixParser::BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix) :
   }
 }
 
-QSharedPointer<FormatInformation> BitMatrixParser::readFormatInformation() {
+Ref<FormatInformation> BitMatrixParser::readFormatInformation() {
   if (parsedFormatInfo_ != 0) {
     return parsedFormatInfo_;
   }
@@ -74,7 +74,7 @@ QSharedPointer<FormatInformation> BitMatrixParser::readFormatInformation() {
   throw ReaderException("Could not decode format information");
 }
 
-QSharedPointer<Version>BitMatrixParser::readVersion() {
+Version *BitMatrixParser::readVersion() {
   if (parsedVersion_ != 0) {
     return parsedVersion_;
   }
@@ -116,9 +116,9 @@ QSharedPointer<Version>BitMatrixParser::readVersion() {
   throw ReaderException("Could not decode version");
 }
 
-QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
-  QSharedPointer<FormatInformation> formatInfo = readFormatInformation();
-  QSharedPointer<Version>version = readVersion();
+ArrayRef<char> BitMatrixParser::readCodewords() {
+  Ref<FormatInformation> formatInfo = readFormatInformation();
+  Version *version = readVersion();
 
 
   // Get the data mask for the format used in this QR Code. This will exclude
@@ -132,13 +132,13 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
   //		cerr << *bitMatrix_ << endl;
   //	cerr << version->getTotalCodewords() << endl;
 
-  QSharedPointer<BitMatrix> functionPattern = version->buildFunctionPattern();
+  Ref<BitMatrix> functionPattern = version->buildFunctionPattern();
 
 
   //	cout << *functionPattern << endl;
 
   bool readingUp = true;
-  QSharedPointer<std::vector<zxing::byte>> result(new std::vector<zxing::byte>(version->getTotalCodewords()));
+  ArrayRef<char> result(version->getTotalCodewords());
   int resultOffset = 0;
   int currentByte = 0;
   int bitsRead = 0;
@@ -163,7 +163,7 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
           }
           // If we've made a whole byte, save it off
           if (bitsRead == 8) {
-            (*result)[resultOffset++] = (zxing::byte)currentByte;
+            result[resultOffset++] = (char)currentByte;
             bitsRead = 0;
             currentByte = 0;
           }
@@ -177,33 +177,6 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
     throw ReaderException("Did not read all codewords");
   }
   return result;
-}
-
-void BitMatrixParser::remask() {
-    if (parsedFormatInfo_ == 0) {
-        return; // We have no format information, and have no data mask
-    }
-
-    DataMask &dataMask = DataMask::forReference((int)parsedFormatInfo_->getDataMask());
-    int dimension = bitMatrix_->getHeight();
-    dataMask.unmaskBitMatrix(*bitMatrix_, dimension);
-}
-
-void BitMatrixParser::setMirror(boolean mirror) {
-    parsedVersion_.reset();
-    parsedFormatInfo_.reset();
-    mirror_ = mirror;
-}
-
-void BitMatrixParser::mirror() {
-    for (int x = 0; x < bitMatrix_->getWidth(); x++) {
-        for (int y = x + 1; y < bitMatrix_->getHeight(); y++) {
-            if (bitMatrix_->get(x, y) != bitMatrix_->get(y, x)) {
-                bitMatrix_->flip(y, x);
-                bitMatrix_->flip(x, y);
-            }
-        }
-    }
 }
 
 }

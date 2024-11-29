@@ -1,45 +1,21 @@
-/*
- * Copyright 2011 QZXing authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #ifndef QZXING_H
 #define QZXING_H
 
 #include "QZXing_global.h"
-
 #include <QObject>
 #include <QImage>
-#include <QVariantList>
-#include <QElapsedTimer>
 
-#include <set>
-
-#if QT_VERSION >= 0x050000
-    class QQmlEngine;
+#if QT_VERSION >= 0x040700 && QT_VERSION < 0x050000
+#include <QtDeclarative>
+#elif QT_VERSION >= 0x050000
+#include <QtQml/qqml.h>
 #endif
 
 // forward declaration
 namespace zxing {
 class MultiFormatReader;
-class ResultMetadata;
 }
 class ImageHandler;
-
-#ifdef ENABLE_ENCODER_GENERIC
-struct QZXingEncoderConfig;
-#endif // ENABLE_ENCODER_GENERIC
 
 /**
   * A class containing a very very small subset of the ZXing library.
@@ -48,24 +24,18 @@ struct QZXingEncoderConfig;
   * Anyone interested in using more technical stuff
   * from the ZXing library is welcomed to add/edit on free will.
   *
-  * Regarding DecoderFormat, by default all of those are enabled
+  * Regarding DecoderFormat, by default all of those are enabled (except DataMatrix will is still not supported)
   */
 class
-        #ifndef DISABLE_LIBRARY_FEATURES
-        QZXINGSHARED_EXPORT
-        #endif
-        QZXing : public QObject {
+#ifndef DISABLE_LIBRARY_FEATURES
+    QZXINGSHARED_EXPORT
+#endif
+    QZXing : public QObject {
 
     Q_OBJECT
     Q_ENUMS(DecoderFormat)
-    Q_ENUMS(TryHarderBehaviour)
-    Q_ENUMS(SourceFilter)
     Q_PROPERTY(int processingTime READ getProcessTimeOfLastDecoding)
     Q_PROPERTY(uint enabledDecoders READ getEnabledFormats WRITE setDecoder NOTIFY enabledFormatsChanged)
-    Q_PROPERTY(uint tryHarderType READ getTryHarderBehaviour WRITE setTryHarderBehaviour)
-    Q_PROPERTY(uint imageSourceFilter READ getSourceFilterType WRITE setSourceFilterType)
-    Q_PROPERTY(bool tryHarder READ getTryHarder WRITE setTryHarder)
-    Q_PROPERTY(QVariantList allowedExtensions READ getAllowedExtensions WRITE setAllowedExtensions)
 
 public:
     /*
@@ -89,68 +59,25 @@ public:
         DecoderFormat_RSS_EXPANDED = 1 << 14,
         DecoderFormat_UPC_A = 1 << 15,
         DecoderFormat_UPC_E = 1 << 16,
-        DecoderFormat_UPC_EAN_EXTENSION = 1 << 17,
-        DecoderFormat_CODE_128_GS1 = 1 << 18
+        DecoderFormat_UPC_EAN_EXTENSION = 1 << 17
     } ;
     typedef unsigned int DecoderFormatType;
 
-    enum TryHarderBehaviour {
-        TryHarderBehaviour_ThoroughScanning = 1 << 1,
-        TryHarderBehaviour_Rotate = 1 << 2
-    };
-    typedef unsigned int TryHarderBehaviourType;
-
-    enum SourceFilter {
-        SourceFilter_ImageNormal = 1 << 1,
-        SourceFilter_ImageInverted = 1 << 2
-    };
-    typedef unsigned int SourceFilterType;
-
-    enum EncoderFormat {
-        EncoderFormat_INVALID,
-        EncoderFormat_QR_CODE
-    };
-
-    enum EncodeErrorCorrectionLevel {
-        EncodeErrorCorrectionLevel_L = 0,
-        EncodeErrorCorrectionLevel_M,
-        EncodeErrorCorrectionLevel_Q,
-        EncodeErrorCorrectionLevel_H
-    };
-
-    QZXing(QObject *parent = Q_NULLPTR);
+    QZXing(QObject *parent = NULL);
     ~QZXing();
 
-    QZXing(DecoderFormat decodeHints, QObject *parent = Q_NULLPTR);
-
-#ifdef QZXING_QML
+    QZXing(DecoderFormat decodeHints, QObject *parent = NULL);
 
 #if QT_VERSION >= 0x040700
-    static void registerQMLTypes();
-#endif //QT_VERSION >= Qt 4.7
+    static void registerQMLTypes()
+    {
+        qmlRegisterType<QZXing>("QZXing", 2, 3, "QZXing");
+    }
+#endif
 
-#if  QT_VERSION >= 0x050000
-    static void registerQMLImageProvider(QQmlEngine& engine);
-#endif //QT_VERSION >= Qt 5.0
-
-#endif //QZXING_QML
-
-    void setTryHarder(bool tryHarder);
-    bool getTryHarder();
-    void setTryHarderBehaviour(TryHarderBehaviourType tryHarderBehaviour);
-    TryHarderBehaviourType getTryHarderBehaviour();
-    void setSourceFilterType(SourceFilterType sourceFilter);
-    SourceFilterType getSourceFilterType();
-    void setAllowedExtensions(const QVariantList& extensions);
-    QVariantList getAllowedExtensions();
-    static QString decoderFormatToString(int fmt);
-    Q_INVOKABLE QString foundedFormat() const;
-    Q_INVOKABLE QString charSet() const;
-
-    bool getLastDecodeOperationSucceded();
-
-private:
-    QVariantMap metadataToMap(const zxing::ResultMetadata& metadata);
+    QString decoderFormatToString(int fmt);
+    QString foundedFormat() const;
+    QString charSet() const;
 
 public slots:
     /**
@@ -162,7 +89,7 @@ public slots:
       * The smoothTransformation flag determines whether the transformation will be smooth or fast.
       * Smooth transformation provides better results but fast transformation is...faster.
       */
-    QString decodeImage(const QImage &image, int maxWidth = -1, int maxHeight = -1, bool smoothTransformation = false);
+    QString decodeImage(QImage &image, int maxWidth = -1, int maxHeight = -1, bool smoothTransformation = false);
 
     /**
       * The decoding function. Will try to decode the given image based on the enabled decoders.
@@ -179,8 +106,8 @@ public slots:
      * of a portion of the image. (Suggested for Qt 4.x)
      */
     QString decodeSubImageQML(QObject *item,
-                              const int offsetX = 0, const int offsetY = 0,
-                              const int width = 0, const int height = 0);
+                              const double offsetX = 0 , const double offsetY = 0,
+                              const double width = 0, const double height = 0);
 
     /**
      * The decoding function accessible from QML. (Suggested for Qt 5.x)
@@ -197,26 +124,8 @@ public slots:
      * (Suggested for Qt 5.x)
      */
     QString decodeSubImageQML(const QUrl &imageUrl,
-                              const int offsetX = 0, const int offsetY = 0,
-                              const int width = 0, const int height = 0);
-
-#ifdef ENABLE_ENCODER_GENERIC
-    /**
-     * The main encoding function. Currently supports only Qr code encoding
-     */
-    static QImage encodeData(const QString &data,
-                             const QZXingEncoderConfig &encoderConfig);
-
-    /**
-     * Overloaded function of encodeData.
-     */
-    static QImage encodeData(const QString& data,
-                             const EncoderFormat encoderFormat = EncoderFormat_QR_CODE,
-                             const QSize encoderImageSize = QSize(240, 240),
-                             const EncodeErrorCorrectionLevel errorCorrectionLevel = EncodeErrorCorrectionLevel_L,
-                             const bool border = false,
-                             const bool transparent = false);
-#endif // ENABLE_ENCODER_GENERIC
+                              const double offsetX = 0, const double offsetY = 0,
+                              const double width = 0, const double height = 0);
 
     /**
       * Get the prossecing time in millisecond of the last decode operation.
@@ -240,50 +149,24 @@ public slots:
 signals:
     void decodingStarted();
     void decodingFinished(bool succeeded);
-    void enabledFormatsChanged();
     void tagFound(QString tag);
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet) const;
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QRectF &rect) const;
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QVariantMap &metadata) const;
+    void enabledFormatsChanged();
+    void tagFoundAdvanced(QString tag, QString format, QString charSet);
     void error(QString msg);
 
 private:
     zxing::MultiFormatReader *decoder;
     DecoderFormatType enabledDecoders;
-    TryHarderBehaviourType tryHarderType;
-    SourceFilterType imageSourceFilter;
     ImageHandler *imageHandler;
     int processingTime;
-    QString decodedFormat;
+    QString foundedFmt;
     QString charSet_;
-    bool tryHarder_;
-    bool lastDecodeOperationSucceded_;
-    std::set<int> allowedExtensions_;
 
     /**
       * If true, the decoding operation will take place at a different thread.
       */
     bool isThreaded;
 };
-
-#ifdef ENABLE_ENCODER_GENERIC
-typedef struct QZXingEncoderConfig
-{
-    QZXing::EncoderFormat format;
-    QSize imageSize;
-    QZXing::EncodeErrorCorrectionLevel errorCorrectionLevel;
-    bool border;
-    bool transparent;
-
-    QZXingEncoderConfig(const QZXing::EncoderFormat encoderFormat_ = QZXing::EncoderFormat_QR_CODE,
-                        const QSize encoderImageSize_ = QSize(240, 240),
-                        const QZXing::EncodeErrorCorrectionLevel errorCorrectionLevel_ = QZXing::EncodeErrorCorrectionLevel_L,
-                        const bool border_ = false,
-                        const bool transparent_ = false) :
-        format(encoderFormat_), imageSize(encoderImageSize_),
-        errorCorrectionLevel(errorCorrectionLevel_), border(border_), transparent(transparent_) {}
-} QZXingEncoderConfig;
-#endif // ENABLE_ENCODER_GENERIC
 
 #endif // QZXING_H
 

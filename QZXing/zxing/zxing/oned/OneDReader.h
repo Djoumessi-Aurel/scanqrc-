@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_ONED_READER_H
-#define ZXING_ONED_READER_H
+#ifndef __ONED_READER_H__
+#define __ONED_READER_H__
 
 /*
  *  OneDReader.h
@@ -22,29 +22,17 @@
  */
 
 #include <zxing/Reader.h>
-#include <zxing/DecodeHints.h>
 
 namespace zxing {
 namespace oned {
 
 class OneDReader : public Reader {
 private:
-  QSharedPointer<Result> doDecode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  Ref<Result> doDecode(Ref<BinaryBitmap> image, DecodeHints hints);
 
 protected:
   static const int INTEGER_MATH_SHIFT = 8;
 
-  static int patternMatchVariance(std::vector<int>& counters,
-                                  std::vector<int> const& pattern,
-                                  int maxIndividualVariance);
-  static int patternMatchVariance(std::vector<int>& counters,
-                                  int const pattern[],
-                                  int maxIndividualVariance);
-
-protected:
-  static const int PATTERN_MATCH_RESULT_SCALE_FACTOR = 1 << INTEGER_MATH_SHIFT;
-
-public:
   struct Range {
   private:
     int data[2];
@@ -62,24 +50,32 @@ public:
     }
   };
 
-  virtual QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  static int patternMatchVariance(std::vector<int>& counters,
+                                  std::vector<int> const& pattern,
+                                  int maxIndividualVariance);
+  static int patternMatchVariance(std::vector<int>& counters,
+                                  int const pattern[],
+                                  int maxIndividualVariance);
+
+protected:
+  static const int PATTERN_MATCH_RESULT_SCALE_FACTOR = 1 << INTEGER_MATH_SHIFT;
+
+public:
+
+  OneDReader();
+  virtual Ref<Result> decode(Ref<BinaryBitmap> image, DecodeHints hints);
 
   // Implementations must not throw any exceptions. If a barcode is not found on this row,
-  // a empty ref should be returned e.g. return QSharedPointer<Result>();
-  virtual QSharedPointer<Result> decodeRow(int rowNumber, QSharedPointer<BitArray> row, DecodeHints hints) = 0;
+  // a empty ref should be returned e.g. return Ref<Result>();
+  virtual Ref<Result> decodeRow(int rowNumber, Ref<BitArray> row) = 0;
 
-  static void recordPattern(QSharedPointer<BitArray> row,
+  static void recordPattern(Ref<BitArray> row,
                             int start,
                             std::vector<int>& counters);
-
-  static void recordPatternInReverse(QSharedPointer<BitArray> row,
-                                     int start,
-                                     std::vector<int>& counters);
   virtual ~OneDReader();
 };
 
 }
 }
 
-#endif // ZXING_ONED_READER_H
-
+#endif

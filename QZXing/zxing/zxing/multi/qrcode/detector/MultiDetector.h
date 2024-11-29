@@ -1,5 +1,5 @@
-#ifndef ZXING_MULTI_DETECTOR_H
-#define ZXING_MULTI_DETECTOR_H
+#ifndef __MULTI_DETECTOR_H__
+#define __MULTI_DETECTOR_H__
 
 /*
  *  Copyright 2011 ZXing authors
@@ -26,12 +26,12 @@ namespace multi {
 
 class MultiDetector : public zxing::qrcode::Detector {
   public:
-    MultiDetector(QSharedPointer<BitMatrix> image);
+    MultiDetector(Ref<BitMatrix> image);
     virtual ~MultiDetector();
-    virtual std::vector<QSharedPointer<DetectorResult> > detectMulti(DecodeHints hints);
+    virtual std::vector<Ref<DetectorResult> > detectMulti(DecodeHints hints);
 };
 
 }
 }
 
-#endif // ZXING_MULTI_DETECTOR_H
+#endif // __MULTI_DETECTOR_H__

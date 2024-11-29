@@ -1,5 +1,5 @@
-#ifndef ZXING_WHITERECTANGLEDETECTOR_H
-#define ZXING_WHITERECTANGLEDETECTOR_H
+#ifndef __WHITERECTANGLEDETECTOR_H__
+#define __WHITERECTANGLEDETECTOR_H__
 
 /*
  *  WhiteRectangleDetector.h
@@ -25,17 +25,17 @@
 #include <zxing/ReaderException.h>
 #include <zxing/ResultPoint.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/ResultPoint.h>
 
 
 namespace zxing {
 
-class WhiteRectangleDetector  {
+class WhiteRectangleDetector : public Counted {
   private:
     static int INIT_SIZE;
     static int CORR;
-    QSharedPointer<BitMatrix> image_;
+    Ref<BitMatrix> image_;
     int width_;
     int height_;
     int leftInit_;
@@ -44,16 +44,16 @@ class WhiteRectangleDetector  {
     int upInit_;
 
   public:
-    WhiteRectangleDetector(QSharedPointer<BitMatrix> image);
-    WhiteRectangleDetector(QSharedPointer<BitMatrix> image, int initSize, int x, int y);
-    std::vector<QSharedPointer<ResultPoint> > detect();
+    WhiteRectangleDetector(Ref<BitMatrix> image);
+    WhiteRectangleDetector(Ref<BitMatrix> image, int initSize, int x, int y);
+    std::vector<Ref<ResultPoint> > detect();
 
   private: 
-    QSharedPointer<ResultPoint> getBlackPointOnSegment(int aX, int aY, int bX, int bY);
-    std::vector<QSharedPointer<ResultPoint> > centerEdges(QSharedPointer<ResultPoint> y, QSharedPointer<ResultPoint> z,
-                                    QSharedPointer<ResultPoint> x, QSharedPointer<ResultPoint> t);
+    Ref<ResultPoint> getBlackPointOnSegment(int aX, int aY, int bX, int bY);
+    std::vector<Ref<ResultPoint> > centerEdges(Ref<ResultPoint> y, Ref<ResultPoint> z,
+                                    Ref<ResultPoint> x, Ref<ResultPoint> t);
     bool containsBlackPoint(int a, int b, int fixed, bool horizontal);
 };
 }
 
-#endif // ZXING_WHITERECTANGLEDETECTOR_H
+#endif

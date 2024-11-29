@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_RESULT_POINT_H
-#define ZXING_RESULT_POINT_H
+#ifndef __RESULT_POINT_H__
+#define __RESULT_POINT_H__
 
 /*
  *  ResultPoint.h
@@ -21,12 +21,12 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <vector>
 
 namespace zxing {
 
-class ResultPoint  {
+class ResultPoint : public Counted {
 protected:
   const float posX_;
   const float posY_;
@@ -40,16 +40,16 @@ public:
   virtual float getX() const;
   virtual float getY() const;
 
-  bool equals(const QSharedPointer<ResultPoint> &other);
+  bool equals(Ref<ResultPoint> other);
 
-  static void orderBestPatterns(std::vector<QSharedPointer<ResultPoint> > &patterns);
-  static float distance(QSharedPointer<ResultPoint> point1, QSharedPointer<ResultPoint> point2);
+  static void orderBestPatterns(std::vector<Ref<ResultPoint> > &patterns);
+  static float distance(Ref<ResultPoint> point1, Ref<ResultPoint> point2);
   static float distance(float x1, float x2, float y1, float y2);
 
 private:
-  static float crossProductZ(QSharedPointer<ResultPoint> pointA, QSharedPointer<ResultPoint> pointB, QSharedPointer<ResultPoint> pointC);
+  static float crossProductZ(Ref<ResultPoint> pointA, Ref<ResultPoint> pointB, Ref<ResultPoint> pointC);
 };
 
 }
 
-#endif // ZXING_RESULT_POINT_H
+#endif // __RESULT_POINT_H__

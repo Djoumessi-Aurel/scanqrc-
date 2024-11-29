@@ -27,10 +27,10 @@ namespace zxing {
 namespace datamatrix {
 
 int BitMatrixParser::copyBit(size_t x, size_t y, int versionBits) {
-  return bitMatrix_->get(int(x), int(y)) ? (versionBits << 1) | 0x1 : versionBits << 1;
+  return bitMatrix_->get(x, y) ? (versionBits << 1) | 0x1 : versionBits << 1;
 }
 
-BitMatrixParser::BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix) : bitMatrix_(NULL),
+BitMatrixParser::BitMatrixParser(Ref<BitMatrix> bitMatrix) : bitMatrix_(NULL),
                                                              parsedVersion_(NULL),
                                                              readBitMatrix_(NULL) {
   size_t dimension = bitMatrix->getHeight();
@@ -39,10 +39,10 @@ BitMatrixParser::BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix) : bitMatri
 
   parsedVersion_ = readVersion(bitMatrix);
   bitMatrix_ = extractDataRegion(bitMatrix);
-  readBitMatrix_.reset(new BitMatrix(bitMatrix_->getWidth(), bitMatrix_->getHeight()));
+  readBitMatrix_ = new BitMatrix(bitMatrix_->getWidth(), bitMatrix_->getHeight());
 }
 
-QSharedPointer<Version> BitMatrixParser::readVersion(QSharedPointer<BitMatrix> bitMatrix) {
+Ref<Version> BitMatrixParser::readVersion(Ref<BitMatrix> bitMatrix) {
   if (parsedVersion_ != 0) {
     return parsedVersion_;
   }
@@ -50,15 +50,15 @@ QSharedPointer<Version> BitMatrixParser::readVersion(QSharedPointer<BitMatrix> b
   int numRows = bitMatrix->getHeight();
   int numColumns = bitMatrix->getWidth();
 
-  QSharedPointer<Version> version = parsedVersion_->getVersionForDimensions(numRows, numColumns);
+  Ref<Version> version = parsedVersion_->getVersionForDimensions(numRows, numColumns);
   if (version != 0) {
     return version;
   }
   throw ReaderException("Couldn't decode version");
 }
 
-QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
-    QSharedPointer<std::vector<zxing::byte>> result(new std::vector<zxing::byte>(parsedVersion_->getTotalCodewords()));
+ArrayRef<char> BitMatrixParser::readCodewords() {
+    ArrayRef<char> result(parsedVersion_->getTotalCodewords());
     int resultOffset = 0;
     int row = 4;
     int column = 0;
@@ -75,22 +75,22 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
     do {
       // Check the four corner cases
       if ((row == numRows) && (column == 0) && !corner1Read) {
-        (*result)[resultOffset++] = (zxing::byte) readCorner1(numRows, numColumns);
+        result[resultOffset++] = (char) readCorner1(numRows, numColumns);
         row -= 2;
         column +=2;
         corner1Read = true;
       } else if ((row == numRows-2) && (column == 0) && ((numColumns & 0x03) != 0) && !corner2Read) {
-        (*result)[resultOffset++] = (zxing::byte) readCorner2(numRows, numColumns);
+        result[resultOffset++] = (char) readCorner2(numRows, numColumns);
         row -= 2;
         column +=2;
         corner2Read = true;
       } else if ((row == numRows+4) && (column == 2) && ((numColumns & 0x07) == 0) && !corner3Read) {
-        (*result)[resultOffset++] = (zxing::byte) readCorner3(numRows, numColumns);
+        result[resultOffset++] = (char) readCorner3(numRows, numColumns);
         row -= 2;
         column +=2;
         corner3Read = true;
       } else if ((row == numRows-2) && (column == 0) && ((numColumns & 0x07) == 4) && !corner4Read) {
-        (*result)[resultOffset++] = (zxing::byte) readCorner4(numRows, numColumns);
+        result[resultOffset++] = (char) readCorner4(numRows, numColumns);
         row -= 2;
         column +=2;
         corner4Read = true;
@@ -98,7 +98,7 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
         // Sweep upward diagonally to the right
         do {
           if ((row < numRows) && (column >= 0) && !readBitMatrix_->get(column, row)) {
-            (*result)[resultOffset++] = (zxing::byte) readUtah(row, column, numRows, numColumns);
+            result[resultOffset++] = (char) readUtah(row, column, numRows, numColumns);
           }
           row -= 2;
           column +=2;
@@ -109,7 +109,7 @@ QSharedPointer<std::vector<zxing::byte>> BitMatrixParser::readCodewords() {
         // Sweep downward diagonally to the left
         do {
           if ((row >= 0) && (column < numColumns) && !readBitMatrix_->get(column, row)) {
-             (*result)[resultOffset++] = (zxing::byte) readUtah(row, column, numRows, numColumns);
+             result[resultOffset++] = (char) readUtah(row, column, numRows, numColumns);
           }
           row += 2;
           column -=2;
@@ -319,7 +319,7 @@ int BitMatrixParser::readCorner4(int numRows, int numColumns) {
     return currentByte;
   }
 
-QSharedPointer<BitMatrix> BitMatrixParser::extractDataRegion(QSharedPointer<BitMatrix> bitMatrix) {
+Ref<BitMatrix> BitMatrixParser::extractDataRegion(Ref<BitMatrix> bitMatrix) {
     int symbolSizeRows = parsedVersion_->getSymbolSizeRows();
     int symbolSizeColumns = parsedVersion_->getSymbolSizeColumns();
 
@@ -336,7 +336,7 @@ QSharedPointer<BitMatrix> BitMatrixParser::extractDataRegion(QSharedPointer<BitM
     int sizeDataRegionRow = numDataRegionsRow * dataRegionSizeRows;
     int sizeDataRegionColumn = numDataRegionsColumn * dataRegionSizeColumns;
 
-    QSharedPointer<BitMatrix> bitMatrixWithoutAlignment(new BitMatrix(sizeDataRegionColumn, sizeDataRegionRow));
+    Ref<BitMatrix> bitMatrixWithoutAlignment(new BitMatrix(sizeDataRegionColumn, sizeDataRegionRow));
     for (int dataRegionRow = 0; dataRegionRow < numDataRegionsRow; ++dataRegionRow) {
       int dataRegionRowOffset = dataRegionRow * dataRegionSizeRows;
       for (int dataRegionColumn = 0; dataRegionColumn < numDataRegionsColumn; ++dataRegionColumn) {

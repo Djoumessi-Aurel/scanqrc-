@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_GENERIC_MULTIPLE_BARCODE_READER_H
-#define ZXING_GENERIC_MULTIPLE_BARCODE_READER_H
+#ifndef __GENERIC_MULTIPLE_BARCODE_READER_H__
+#define __GENERIC_MULTIPLE_BARCODE_READER_H__
 
 /*
  *  Copyright 2011 ZXing authors All rights reserved.
@@ -26,12 +26,12 @@ namespace multi {
 
 class GenericMultipleBarcodeReader : public MultipleBarcodeReader {
  private:
-  static QSharedPointer<Result> translateResultPoints(QSharedPointer<Result> result, 
+  static Ref<Result> translateResultPoints(Ref<Result> result, 
                                            int xOffset, 
                                            int yOffset);
-  void doDecodeMultiple(QSharedPointer<BinaryBitmap> image, 
+  void doDecodeMultiple(Ref<BinaryBitmap> image, 
                         DecodeHints hints, 
-                        std::vector<QSharedPointer<Result> >& results, 
+                        std::vector<Ref<Result> >& results, 
                         int xOffset, 
                         int yOffset,
                         int currentDepth);
@@ -42,10 +42,10 @@ class GenericMultipleBarcodeReader : public MultipleBarcodeReader {
  public:
   GenericMultipleBarcodeReader(Reader& delegate);
   virtual ~GenericMultipleBarcodeReader();
-  virtual std::vector<QSharedPointer<Result> > decodeMultiple(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  virtual std::vector<Ref<Result> > decodeMultiple(Ref<BinaryBitmap> image, DecodeHints hints);
 };
 
 }
 }
 
-#endif // ZXING_GENERIC_MULTIPLE_BARCODE_READER_H
+#endif // __GENERIC_MULTIPLE_BARCODE_READER_H__

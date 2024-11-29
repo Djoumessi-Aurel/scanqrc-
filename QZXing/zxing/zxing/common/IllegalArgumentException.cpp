@@ -24,4 +24,4 @@ using zxing::IllegalArgumentException;
 
 IllegalArgumentException::IllegalArgumentException() : Exception() {}
 IllegalArgumentException::IllegalArgumentException(const char *msg) : Exception(msg) {}
-IllegalArgumentException::~IllegalArgumentException() ZXING_NOEXCEPT {}
+IllegalArgumentException::~IllegalArgumentException() throw() {}

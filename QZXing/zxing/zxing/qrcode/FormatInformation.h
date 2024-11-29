@@ -1,5 +1,5 @@
-#ifndef ZXING_FORMAT_INFORMATION_H
-#define ZXING_FORMAT_INFORMATION_H
+#ifndef __FORMAT_INFORMATION_H__
+#define __FORMAT_INFORMATION_H__
 
 /*
  *  FormatInformation.h
@@ -21,13 +21,13 @@
  */
 
 #include <zxing/qrcode/ErrorCorrectionLevel.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <iostream>
 
 namespace zxing {
 namespace qrcode {
 
-class FormatInformation  {
+class FormatInformation : public Counted {
 private:
   static int FORMAT_INFO_MASK_QR;
   static int FORMAT_INFO_DECODE_LOOKUP[][2];
@@ -41,8 +41,8 @@ private:
 
 public:
   static int numBitsDiffering(int a, int b);
-  static QSharedPointer<FormatInformation> decodeFormatInformation(int maskedFormatInfo1, int maskedFormatInfo2);
-  static QSharedPointer<FormatInformation> doDecodeFormatInformation(int maskedFormatInfo1, int maskedFormatInfo2);
+  static Ref<FormatInformation> decodeFormatInformation(int maskedFormatInfo1, int maskedFormatInfo2);
+  static Ref<FormatInformation> doDecodeFormatInformation(int maskedFormatInfo1, int maskedFormatInfo2);
   ErrorCorrectionLevel &getErrorCorrectionLevel();
   char getDataMask();
   friend bool operator==(const FormatInformation &a, const FormatInformation &b);
@@ -51,4 +51,4 @@ public:
 }
 }
 
-#endif // ZXING_FORMAT_INFORMATION_H
+#endif // __FORMAT_INFORMATION_H__

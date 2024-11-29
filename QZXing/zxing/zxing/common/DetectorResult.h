@@ -1,5 +1,5 @@
-#ifndef ZXING_DETECTOR_RESULT_H
-#define ZXING_DETECTOR_RESULT_H
+#ifndef __DETECTOR_RESULT_H__
+#define __DETECTOR_RESULT_H__
 
 /*
  *  DetectorResult.h
@@ -20,23 +20,24 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/ResultPoint.h>
 
 namespace zxing {
 
-class DetectorResult  {
+class DetectorResult : public Counted {
 private:
-  QSharedPointer<BitMatrix> bits_;
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > points_;
+  Ref<BitMatrix> bits_;
+  ArrayRef< Ref<ResultPoint> > points_;
 
 public:
-  DetectorResult(QSharedPointer<BitMatrix> bits, QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > points);
-  QSharedPointer<BitMatrix> getBits();
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > getPoints();
+  DetectorResult(Ref<BitMatrix> bits, ArrayRef< Ref<ResultPoint> > points);
+  Ref<BitMatrix> getBits();
+  ArrayRef< Ref<ResultPoint> > getPoints();
 };
 
 }
 
-#endif // ZXING_DETECTOR_RESULT_H
+#endif // __DETECTOR_RESULT_H__

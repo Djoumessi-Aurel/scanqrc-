@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef ZXING_H
-#define ZXING_H
+#ifndef __ZXING_H_
+#define __ZXING_H_
 
 #define ZXING_ARRAY_LEN(v) ((int)(sizeof(v)/sizeof(v[0])))
 #define ZX_LOG_DIGITS(digits) \
@@ -30,8 +30,12 @@
 #define ZXING_DEBUG 0
 #endif
 
+namespace zxing {
+typedef char byte;
+typedef bool boolean;
+}
+
 #include <limits>
-#include "common/Types.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -41,44 +45,27 @@
 namespace zxing {
 inline bool isnan_z(float v) {return std::isnan(v) != 0;}
 inline bool isnan_z(double v) {return std::isnan(v) != 0;}
+inline float nan() {return std::numeric_limits<float>::quiet_NaN();}
 }
 
-#elif (__cplusplus >= 201103L)
-#include <cmath>
-namespace zxing {
-inline bool isnan_z(float v) {
-    return std::isnan(v);
-}
-inline bool isnan_z(double v) {
-    return std::isnan(v);
-}
-}
-#elif(__STDC_VERSION__ >= 199901L)
-#include <math.h>
-namespace zxing {
-inline bool isnan_z(float v) {
-    return isnan(v);
-}
-inline bool isnan_z(double v) {
-    return isnan(v);
-}
-}
 #else
-namespace zxing {
-inline bool isnan_z(float v) {
-    volatile float d = v;
-    return d != d;
-}
-inline bool isnan_z(double v) {
-    volatile double d = v;
-    return d != d;
-}
-}
-#endif
+
+//#include <cmath>
+
+#include <math.h>
+
 
 namespace zxing {
-	inline float nan() {return std::numeric_limits<float>::quiet_NaN();}
+inline bool isnan_z(float v) {
+    return isnan(v);
 }
+inline bool isnan_z(double v) {
+    return isnan(v);
+}
+inline float nan() {return std::numeric_limits<float>::quiet_NaN();}
+}
+
+#endif
 
 #if ZXING_DEBUG
 
@@ -149,20 +136,6 @@ private:
 #endif
 #ifndef ZXING_TIME_MARK
 #define ZXING_TIME_MARK(string) (void)0
-#endif
-
-#ifndef ZXING_NULLPTR
-#if __cplusplus >= 201103L
-   #define ZXING_NULLPTR nullptr
-#else
-   #define ZXING_NULLPTR NULL
-#endif
-#endif // ZXING_NULLPTR
-
-#if __cplusplus >= 201103L
-   #define ZXING_NOEXCEPT noexcept
-#else
-   #define ZXING_NOEXCEPT throw()
 #endif
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef ZXING_ALIGNMENT_PATTERN_FINDER_H
-#define ZXING_ALIGNMENT_PATTERN_FINDER_H
+#ifndef __ALIGNMENT_PATTERN_FINDER_H__
+#define __ALIGNMENT_PATTERN_FINDER_H__
 
 /*
  *  AlignmentPatternFinder.h
@@ -21,7 +21,7 @@
  */
 
 #include "AlignmentPattern.h"
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/ResultPointCallback.h>
 #include <vector>
@@ -29,14 +29,14 @@
 namespace zxing {
 namespace qrcode {
 
-class AlignmentPatternFinder  {
+class AlignmentPatternFinder : public Counted {
 private:
   static int CENTER_QUORUM;
   static int MIN_SKIP;
   static int MAX_MODULES;
 
-  QSharedPointer<BitMatrix> image_;
-  std::vector<QSharedPointer<AlignmentPattern>> *possibleCenters_;
+  Ref<BitMatrix> image_;
+  std::vector<AlignmentPattern *> *possibleCenters_;
   int startX_;
   int startY_;
   int width_;
@@ -48,21 +48,21 @@ private:
 
   float crossCheckVertical(int startI, int centerJ, int maxCount, int originalStateCountTotal);
 
-  QSharedPointer<AlignmentPattern> handlePossibleCenter(std::vector<int> &stateCount, int i, int j);
+  Ref<AlignmentPattern> handlePossibleCenter(std::vector<int> &stateCount, int i, int j);
 
 public:
-  AlignmentPatternFinder(QSharedPointer<BitMatrix> image, int startX, int startY, int width, int height,
-                         float moduleSize, QSharedPointer<ResultPointCallback>const& callback);
+  AlignmentPatternFinder(Ref<BitMatrix> image, int startX, int startY, int width, int height,
+                         float moduleSize, Ref<ResultPointCallback>const& callback);
   ~AlignmentPatternFinder();
-  QSharedPointer<AlignmentPattern> find();
+  Ref<AlignmentPattern> find();
   
 private:
   AlignmentPatternFinder(const AlignmentPatternFinder&);
   AlignmentPatternFinder& operator =(const AlignmentPatternFinder&);
   
-  QSharedPointer<ResultPointCallback> callback_;
+  Ref<ResultPointCallback> callback_;
 };
 }
 }
 
-#endif // ZXING_ALIGNMENT_PATTERN_FINDER_H
+#endif // __ALIGNMENT_PATTERN_FINDER_H__

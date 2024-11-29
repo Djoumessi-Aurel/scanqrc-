@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_ALIGNMENT_PATTERN_H
-#define ZXING_ALIGNMENT_PATTERN_H
+#ifndef __ALIGNMENT_PATTERN_H__
+#define __ALIGNMENT_PATTERN_H__
 
 /*
  *  AlignmentPattern.h
@@ -35,11 +35,11 @@ namespace zxing {
 		public:
 			AlignmentPattern(float posX, float posY, float estimatedModuleSize);
 			bool aboutEquals(float moduleSize, float i, float j) const;
-      QSharedPointer<AlignmentPattern> combineEstimate(float i, float j,
+      Ref<AlignmentPattern> combineEstimate(float i, float j,
                                             float newModuleSize) const;
 		};
 		
 	}
 }
 
-#endif // ZXING_ALIGNMENT_PATTERN_H
+#endif // __ALIGNMENT_PATTERN_H__

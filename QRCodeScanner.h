@@ -9,9 +9,8 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QTimer>
-#include <QZXing>
+#include <QZXing.h>
 #include <QMediaPlayer>
-#include "VideoFrameProcessor.h"
 
 class QRCodeScanner : public QWidget {
     Q_OBJECT

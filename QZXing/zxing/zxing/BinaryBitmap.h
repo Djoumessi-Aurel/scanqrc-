@@ -1,5 +1,5 @@
-#ifndef ZXING_BINARYBITMAP_H
-#define ZXING_BINARYBITMAP_H
+#ifndef __BINARYBITMAP_H__
+#define __BINARYBITMAP_H__
 
 /*
  *  BinaryBitmap.h
@@ -20,37 +20,37 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/common/BitArray.h>
 #include <zxing/Binarizer.h>
 
 namespace zxing {
 	
-	class BinaryBitmap  {
+	class BinaryBitmap : public Counted {
 	private:
-		QSharedPointer<Binarizer> binarizer_;
+		Ref<Binarizer> binarizer_;
 		
 	public:
-		BinaryBitmap(QSharedPointer<Binarizer> binarizer);
+		BinaryBitmap(Ref<Binarizer> binarizer);
 		virtual ~BinaryBitmap();
 		
-		QSharedPointer<BitArray> getBlackRow(int y, QSharedPointer<BitArray> row);
-		QSharedPointer<BitMatrix> getBlackMatrix();
+		Ref<BitArray> getBlackRow(int y, Ref<BitArray> row);
+		Ref<BitMatrix> getBlackMatrix();
 		
-		QSharedPointer<LuminanceSource> getLuminanceSource() const;
+		Ref<LuminanceSource> getLuminanceSource() const;
 
 		int getWidth() const;
 		int getHeight() const;
 
 		bool isRotateSupported() const;
-		QSharedPointer<BinaryBitmap> rotateCounterClockwise();
-        QSharedPointer<BinaryBitmap> rotateCounterClockwise45();
+		Ref<BinaryBitmap> rotateCounterClockwise();
 
 		bool isCropSupported() const;
-		QSharedPointer<BinaryBitmap> crop(int left, int top, int width, int height);
+		Ref<BinaryBitmap> crop(int left, int top, int width, int height);
+
 	};
 	
 }
 
-#endif /* ZXING_BINARYBITMAP_H */
+#endif /* BINARYBITMAP_H_ */

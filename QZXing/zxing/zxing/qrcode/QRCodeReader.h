@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_QR_CODE_READER_H
-#define ZXING_QR_CODE_READER_H
+#ifndef __QR_CODE_READER_H__
+#define __QR_CODE_READER_H__
 
 /*
  *  QRCodeReader.h
@@ -39,10 +39,10 @@ class QRCodeReader : public Reader {
   QRCodeReader();
   virtual ~QRCodeReader();
 			
-  QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  Ref<Result> decode(Ref<BinaryBitmap> image, DecodeHints hints);
 };
 
 }
 }
 
-#endif // ZXING_QR_CODE_READER_H
+#endif // __QR_CODE_READER_H__

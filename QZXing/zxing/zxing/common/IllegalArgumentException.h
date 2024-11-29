@@ -1,5 +1,5 @@
-#ifndef ZXING_ILLEGAL_ARGUMENT_EXCEPTION_H
-#define ZXING_ILLEGAL_ARGUMENT_EXCEPTION_H
+#ifndef __ILLEGAL_ARGUMENT_EXCEPTION_H__
+#define __ILLEGAL_ARGUMENT_EXCEPTION_H__
 
 /*
  *  IllegalArgumentException.h
@@ -28,9 +28,9 @@ class IllegalArgumentException : public Exception {
 public:
   IllegalArgumentException();
   IllegalArgumentException(const char *msg);
-  ~IllegalArgumentException() ZXING_NOEXCEPT;
+  ~IllegalArgumentException() throw();
 };
 
 }
 
-#endif // ZXING_ILLEGAL_ARGUMENT_EXCEPTION_H
+#endif // __ILLEGAL_ARGUMENT_EXCEPTION_H__

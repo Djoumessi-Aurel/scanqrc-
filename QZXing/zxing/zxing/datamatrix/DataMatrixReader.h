@@ -1,5 +1,5 @@
-#ifndef ZXING_DATA_MATRIX_READER_H
-#define ZXING_DATA_MATRIX_READER_H
+#ifndef __DATA_MATRIX_READER_H__
+#define __DATA_MATRIX_READER_H__
 
 /*
  *  DataMatrixReader.h
@@ -34,7 +34,7 @@ private:
 
 public:
   DataMatrixReader();
-  virtual QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  virtual Ref<Result> decode(Ref<BinaryBitmap> image, DecodeHints hints);
   virtual ~DataMatrixReader();
 
 };
@@ -42,4 +42,4 @@ public:
 }
 }
 
-#endif // ZXING_DATA_MATRIX_READER_H
+#endif // __DATA_MATRIX_READER_H__

@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_EAN_8_READER_H
-#define ZXING_EAN_8_READER_H
+#ifndef __EAN_8_READER_H__
+#define __EAN_8_READER_H__
 
 /*
  *  EAN8Reader.h
@@ -34,7 +34,7 @@ class EAN8Reader : public UPCEANReader {
  public:
   EAN8Reader();
 
-  int decodeMiddle(QSharedPointer<BitArray> row,
+  int decodeMiddle(Ref<BitArray> row,
                    Range const& startRange,
                    std::string& resultString);
 
@@ -44,5 +44,4 @@ class EAN8Reader : public UPCEANReader {
 }
 }
 
-#endif // ZXING_EAN_8_READER_H
-
+#endif

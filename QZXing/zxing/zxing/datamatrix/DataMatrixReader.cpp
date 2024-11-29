@@ -32,16 +32,16 @@ DataMatrixReader::DataMatrixReader() :
     decoder_() {
 }
 
-QSharedPointer<Result> DataMatrixReader::decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints) {
+Ref<Result> DataMatrixReader::decode(Ref<BinaryBitmap> image, DecodeHints hints) {
   (void)hints;
   Detector detector(image->getBlackMatrix());
-  QSharedPointer<DetectorResult> detectorResult(detector.detect());
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > points(detectorResult->getPoints());
+  Ref<DetectorResult> detectorResult(detector.detect());
+  ArrayRef< Ref<ResultPoint> > points(detectorResult->getPoints());
 
 
-  QSharedPointer<DecoderResult> decoderResult(decoder_.decode(detectorResult->getBits()));
+  Ref<DecoderResult> decoderResult(decoder_.decode(detectorResult->getBits()));
 
-  QSharedPointer<Result> result(
+  Ref<Result> result(
     new Result(decoderResult->getText(), decoderResult->getRawBytes(), points, BarcodeFormat::DATA_MATRIX));
 
   return result;

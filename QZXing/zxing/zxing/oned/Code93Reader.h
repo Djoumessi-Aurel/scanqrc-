@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_CODE_93_READER_H
-#define ZXING_CODE_93_READER_H
+#ifndef __CODE_93_READER_H__
+#define __CODE_93_READER_H__
 /*
  *  Code93Reader.h
  *  ZXing
@@ -35,17 +35,17 @@ namespace oned {
 class Code93Reader : public OneDReader {
 public:
   Code93Reader();
-  QSharedPointer<Result> decodeRow(int rowNumber, QSharedPointer<BitArray> row, DecodeHints hints);
+  Ref<Result> decodeRow(int rowNumber, Ref<BitArray> row);
 
 private:
   std::string decodeRowResult;
   std::vector<int> counters;
 
-  Range findAsteriskPattern(QSharedPointer<BitArray> row);
+  Range findAsteriskPattern(Ref<BitArray> row);
 
   static int toPattern(std::vector<int>& counters);
   static char patternToChar(int pattern);
-  static QSharedPointer<String> decodeExtended(std::string const& encoded);
+  static Ref<String> decodeExtended(std::string const& encoded);
   static void checkChecksums(std::string const& result);
   static void checkOneChecksum(std::string const& result,
                                int checkPosition,
@@ -55,5 +55,4 @@ private:
 }
 }
 
-#endif // ZXING_CODE_93_READER_H
-
+#endif

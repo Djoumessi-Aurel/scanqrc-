@@ -38,8 +38,8 @@ class AztecReader : public Reader {
             
  public:
   AztecReader();
-  virtual QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image);
-  virtual QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  virtual Ref<Result> decode(Ref<BinaryBitmap> image);
+  virtual Ref<Result> decode(Ref<BinaryBitmap> image, DecodeHints hints);
   virtual ~AztecReader();
 };
         

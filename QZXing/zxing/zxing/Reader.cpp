@@ -24,7 +24,7 @@ namespace zxing {
 
 Reader::~Reader() { }
 
-QSharedPointer<Result> Reader::decode(QSharedPointer<BinaryBitmap> image) {
+Ref<Result> Reader::decode(Ref<BinaryBitmap> image) {
   return decode(image, DecodeHints::DEFAULT_HINT);
 }
 

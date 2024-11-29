@@ -1,5 +1,5 @@
-#ifndef ZXING_RESULT_POINT_CALLBACK_H
-#define ZXING_RESULT_POINT_CALLBACK_H
+#ifndef __RESULT_POINT_CALLBACK_H__
+#define __RESULT_POINT_CALLBACK_H__
 
 /*
  *  ResultPointCallback.h
@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 
 namespace zxing {
 
 class ResultPoint;
 
-class ResultPointCallback  {
+class ResultPointCallback : public Counted {
 protected:
   ResultPointCallback() {}
 public:
@@ -36,4 +36,4 @@ public:
 
 }
 
-#endif // ZXING_RESULT_POINT_CALLBACK_H
+#endif // __RESULT_POINT_CALLBACK_H__

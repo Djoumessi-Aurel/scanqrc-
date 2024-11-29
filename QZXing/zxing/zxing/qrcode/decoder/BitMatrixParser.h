@@ -1,5 +1,5 @@
-#ifndef ZXING_MATRIX_PARSER_H
-#define ZXING_MATRIX_PARSER_H
+#ifndef __BIT_MATRIX_PARSER_H__
+#define __BIT_MATRIX_PARSER_H__
 
 /*
  *  BitMatrixParser.h
@@ -22,30 +22,27 @@
 
 #include <zxing/ReaderException.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/qrcode/Version.h>
 #include <zxing/qrcode/FormatInformation.h>
 
 namespace zxing {
 namespace qrcode {
 
-class BitMatrixParser  {
+class BitMatrixParser : public Counted {
 private:
-  QSharedPointer<BitMatrix> bitMatrix_;
-  QSharedPointer<Version> parsedVersion_;
-  QSharedPointer<FormatInformation> parsedFormatInfo_;
-  bool mirror_;
+  Ref<BitMatrix> bitMatrix_;
+  Version *parsedVersion_;
+  Ref<FormatInformation> parsedFormatInfo_;
 
   int copyBit(size_t x, size_t y, int versionBits);
 
 public:
-  BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix);
-  QSharedPointer<FormatInformation> readFormatInformation();
-  QSharedPointer<Version>readVersion();
-  QSharedPointer<std::vector<zxing::byte>> readCodewords();
-  void remask();
-  void setMirror(boolean mirror);
-  void mirror();
+  BitMatrixParser(Ref<BitMatrix> bitMatrix);
+  Ref<FormatInformation> readFormatInformation();
+  Version *readVersion();
+  ArrayRef<char> readCodewords();
 
 private:
   BitMatrixParser(const BitMatrixParser&);
@@ -56,4 +53,4 @@ private:
 }
 }
 
-#endif // ZXING_MATRIX_PARSER_H
+#endif // __BIT_MATRIX_PARSER_H__

@@ -26,7 +26,7 @@ namespace datamatrix {
 
 using namespace std;
 
-DataBlock::DataBlock(int numDataCodewords, QSharedPointer<std::vector<zxing::byte>> codewords) :
+DataBlock::DataBlock(int numDataCodewords, ArrayRef<char> codewords) :
     numDataCodewords_(numDataCodewords), codewords_(codewords) {
 }
 
@@ -34,11 +34,11 @@ int DataBlock::getNumDataCodewords() {
   return numDataCodewords_;
 }
 
-QSharedPointer<std::vector<zxing::byte>> DataBlock::getCodewords() {
+ArrayRef<char> DataBlock::getCodewords() {
   return codewords_;
 }
 
-std::vector<QSharedPointer<DataBlock> > DataBlock::getDataBlocks(QSharedPointer<std::vector<zxing::byte>> rawCodewords, QSharedPointer<Version>version) {
+std::vector<Ref<DataBlock> > DataBlock::getDataBlocks(ArrayRef<char> rawCodewords, Version *version) {
   // Figure out the number and size of data blocks used by this version and
   // error correction level
   ECBlocks* ecBlocks = version->getECBlocks();
@@ -51,15 +51,15 @@ std::vector<QSharedPointer<DataBlock> > DataBlock::getDataBlocks(QSharedPointer<
   }
 
   // Now establish DataBlocks of the appropriate size and number of data codewords
-  std::vector<QSharedPointer<DataBlock> > result(totalBlocks);
+  std::vector<Ref<DataBlock> > result(totalBlocks);
   int numResultBlocks = 0;
   for (size_t j = 0; j < ecBlockArray.size(); j++) {
     ECB *ecBlock = ecBlockArray[j];
     for (int i = 0; i < ecBlock->getCount(); i++) {
       int numDataCodewords = ecBlock->getDataCodewords();
       int numBlockCodewords = ecBlocks->getECCodewords() + numDataCodewords;
-      QSharedPointer<std::vector<zxing::byte>> buffer(new std::vector<zxing::byte>(numBlockCodewords));
-      QSharedPointer<DataBlock> blockRef(new DataBlock(numDataCodewords, buffer));
+      ArrayRef<char> buffer(numBlockCodewords);
+      Ref<DataBlock> blockRef(new DataBlock(numDataCodewords, buffer));
       result[numResultBlocks++] = blockRef;
     }
   }
@@ -67,7 +67,7 @@ std::vector<QSharedPointer<DataBlock> > DataBlock::getDataBlocks(QSharedPointer<
   // All blocks have the same amount of data, except that the last n
   // (where n may be 0) have 1 more byte. Figure out where these start.
   int shorterBlocksTotalCodewords = result[0]->codewords_->size();
-  int longerBlocksStartAt = int(result.size()) - 1;
+  int longerBlocksStartAt = result.size() - 1;
   while (longerBlocksStartAt >= 0) {
     int numCodewords = result[longerBlocksStartAt]->codewords_->size();
     if (numCodewords == shorterBlocksTotalCodewords) {
@@ -86,19 +86,19 @@ std::vector<QSharedPointer<DataBlock> > DataBlock::getDataBlocks(QSharedPointer<
   int rawCodewordsOffset = 0;
   for (int i = 0; i < shorterBlocksNumDataCodewords; i++) {
     for (int j = 0; j < numResultBlocks; j++) {
-      (*result[j]->codewords_)[i] = (*rawCodewords)[rawCodewordsOffset++];
+      result[j]->codewords_[i] = rawCodewords[rawCodewordsOffset++];
     }
   }
   // Fill out the last data block in the longer ones
   for (int j = longerBlocksStartAt; j < numResultBlocks; j++) {
-    (*result[j]->codewords_)[shorterBlocksNumDataCodewords] = (*rawCodewords)[rawCodewordsOffset++];
+    result[j]->codewords_[shorterBlocksNumDataCodewords] = rawCodewords[rawCodewordsOffset++];
   }
   // Now add in error correction blocks
   int max = result[0]->codewords_->size();
   for (int i = shorterBlocksNumDataCodewords; i < max; i++) {
     for (int j = 0; j < numResultBlocks; j++) {
       int iOffset = j < longerBlocksStartAt ? i : i + 1;
-      (*result[j]->codewords_)[iOffset] = (*rawCodewords)[rawCodewordsOffset++];
+      result[j]->codewords_[iOffset] = rawCodewords[rawCodewordsOffset++];
     }
   }
 

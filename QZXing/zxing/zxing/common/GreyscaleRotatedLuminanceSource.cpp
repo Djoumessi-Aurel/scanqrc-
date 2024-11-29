@@ -22,15 +22,14 @@
 #include <zxing/common/GreyscaleRotatedLuminanceSource.h>
 #include <zxing/common/IllegalArgumentException.h>
 
-
-
-namespace zxing {
+using zxing::ArrayRef;
+using zxing::GreyscaleRotatedLuminanceSource;
 
 // Note that dataWidth and dataHeight are not reversed, as we need to
 // be able to traverse the greyData correctly, which does not get
 // rotated.
 GreyscaleRotatedLuminanceSource::
-GreyscaleRotatedLuminanceSource(QSharedPointer<std::vector<zxing::byte>> greyData,
+GreyscaleRotatedLuminanceSource(ArrayRef<char> greyData,
                                 int dataWidth, int dataHeight,
                                 int left, int top,
                                 int width, int height)
@@ -45,13 +44,13 @@ GreyscaleRotatedLuminanceSource(QSharedPointer<std::vector<zxing::byte>> greyDat
 }
 
 // The API asks for rows, but we're rotated, so we return columns.
-QSharedPointer<std::vector<zxing::byte>>
-GreyscaleRotatedLuminanceSource::getRow(int y, QSharedPointer<std::vector<zxing::byte>> row) const {
+ArrayRef<char>
+GreyscaleRotatedLuminanceSource::getRow(int y, ArrayRef<char> row) const {
   if (y < 0 || y >= getHeight()) {
     throw IllegalArgumentException("Requested row is outside the image.");
   }
   if (!row || row->size() < getWidth()) {
-    row.reset(new std::vector<zxing::byte>(getWidth()));
+    row = ArrayRef<char>(getWidth());
   }
   int offset = (left_ * dataWidth_) + (dataWidth_ - 1 - (y + top_));
   using namespace std;
@@ -62,23 +61,21 @@ GreyscaleRotatedLuminanceSource::getRow(int y, QSharedPointer<std::vector<zxing:
          << y << endl;
   }
   for (int x = 0; x < getWidth(); x++) {
-    (*row)[x] = (*greyData_)[offset];
+    row[x] = greyData_[offset];
     offset += dataWidth_;
   }
   return row;
 }
 
-QSharedPointer<std::vector<zxing::byte>> GreyscaleRotatedLuminanceSource::getMatrix() const {
-  QSharedPointer<std::vector<zxing::byte>> result (new std::vector<zxing::byte>((size_t)getWidth() * (size_t)getHeight()));
+ArrayRef<char> GreyscaleRotatedLuminanceSource::getMatrix() const {
+  ArrayRef<char> result (getWidth() * getHeight());
   for (int y = 0; y < getHeight(); y++) {
-    zxing::byte* row = &(*result)[(size_t)y * (size_t)getWidth()];
+    char* row = &result[y * getWidth()];
     int offset = (left_ * dataWidth_) + (dataWidth_ - 1 - (y + top_));
     for (int x = 0; x < getWidth(); x++) {
-      row[x] = (*greyData_)[offset];
+      row[x] = greyData_[offset];
       offset += dataWidth_;
     }
   }
   return result;
-}
-
 }

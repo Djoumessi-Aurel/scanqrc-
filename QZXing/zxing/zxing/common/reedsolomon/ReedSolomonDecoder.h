@@ -1,5 +1,5 @@
-#ifndef ZXING_REED_SOLOMON_DECODER_H
-#define ZXING_REED_SOLOMON_DECODER_H
+#ifndef __REED_SOLOMON_DECODER_H__
+#define __REED_SOLOMON_DECODER_H__
 
 /*
  *  ReedSolomonDecoder.h
@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <vector>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/reedsolomon/GenericGFPoly.h>
 #include <zxing/common/reedsolomon/GenericGF.h>
 
@@ -32,17 +33,17 @@ class GenericGF;
 
 class ReedSolomonDecoder {
 private:
-  QSharedPointer<GenericGF> field;
+  Ref<GenericGF> field;
 public:
-  ReedSolomonDecoder(QSharedPointer<GenericGF> fld);
+  ReedSolomonDecoder(Ref<GenericGF> fld);
   ~ReedSolomonDecoder();
-  void decode(QSharedPointer<std::vector<int>> received, int twoS);
-  std::vector<QSharedPointer<GenericGFPoly> > runEuclideanAlgorithm(QSharedPointer<GenericGFPoly> a, QSharedPointer<GenericGFPoly> b, int R);
+  void decode(ArrayRef<int> received, int twoS);
+  std::vector<Ref<GenericGFPoly> > runEuclideanAlgorithm(Ref<GenericGFPoly> a, Ref<GenericGFPoly> b, int R);
 
 private:
-  QSharedPointer<std::vector<int>> findErrorLocations(QSharedPointer<GenericGFPoly> errorLocator);
-  QSharedPointer<std::vector<int>> findErrorMagnitudes(QSharedPointer<GenericGFPoly> errorEvaluator, QSharedPointer<std::vector<int>> errorLocations);
+  ArrayRef<int> findErrorLocations(Ref<GenericGFPoly> errorLocator);
+  ArrayRef<int> findErrorMagnitudes(Ref<GenericGFPoly> errorEvaluator, ArrayRef<int> errorLocations);
 };
 }
 
-#endif // ZXING_REED_SOLOMON_DECODER_H
+#endif // __REED_SOLOMON_DECODER_H__

@@ -1,5 +1,5 @@
-#ifndef ZXING_LINESSAMPLER_H
-#define ZXING_LINESSAMPLER_H
+#ifndef __LINESSAMPLER_H__
+#define __LINESSAMPLER_H__
 
 /*
  * Copyright 2010 ZXing authors All rights reserved.
@@ -35,66 +35,66 @@ private:
   static std::vector<float> init_ratios_table();
   static const int BARCODE_START_OFFSET = 2;
 
-  QSharedPointer<BitMatrix> linesMatrix_;
+  Ref<BitMatrix> linesMatrix_;
   int symbolsPerLine_;
   int dimension_;
   
-  static std::vector<QSharedPointer<ResultPoint> > findVertices(QSharedPointer<BitMatrix> matrix, int rowStep);
-  static std::vector<QSharedPointer<ResultPoint> > findVertices180(QSharedPointer<BitMatrix> matrix, int rowStep);
+  static std::vector<Ref<ResultPoint> > findVertices(Ref<BitMatrix> matrix, int rowStep);
+  static std::vector<Ref<ResultPoint> > findVertices180(Ref<BitMatrix> matrix, int rowStep);
 
-  static QSharedPointer<std::vector<int>> findGuardPattern(QSharedPointer<BitMatrix> matrix,
+  static ArrayRef<int> findGuardPattern(Ref<BitMatrix> matrix,
                                         int column,
                                         int row,
                                         int width,
                                         bool whiteFirst,
                                         const int pattern[],
                                         int patternSize,
-                                        QSharedPointer<std::vector<int>> counters);
-  static int patternMatchVariance(QSharedPointer<std::vector<int>> counters, const int pattern[],
+                                        ArrayRef<int> counters);
+  static int patternMatchVariance(ArrayRef<int> counters, const int pattern[],
                                   int maxIndividualVariance);
 
-  static void correctVertices(QSharedPointer<BitMatrix> matrix,
-                              std::vector<QSharedPointer<ResultPoint> > &vertices,
+  static void correctVertices(Ref<BitMatrix> matrix,
+                              std::vector<Ref<ResultPoint> > &vertices,
                               bool upsideDown);
-  static void findWideBarTopBottom(QSharedPointer<BitMatrix> matrix,
-                                   std::vector<QSharedPointer<ResultPoint> > &vertices,
+  static void findWideBarTopBottom(Ref<BitMatrix> matrix,
+                                   std::vector<Ref<ResultPoint> > &vertices,
                                    int offsetVertice,
                                    int startWideBar,
                                    int lenWideBar,
                                    int lenPattern,
                                    int nIncrement);
-  static void findCrossingPoint(std::vector<QSharedPointer<ResultPoint> > &vertices,
+  static void findCrossingPoint(std::vector<Ref<ResultPoint> > &vertices,
                                 int idxResult,
                                 int idxLineA1,int idxLineA2,
                                 int idxLineB1,int idxLineB2,
-                                QSharedPointer<BitMatrix> matrix);
-  static float computeModuleWidth(std::vector<QSharedPointer<ResultPoint> > &vertices);
-  static int computeDimension(QSharedPointer<ResultPoint> topLeft,
-                              QSharedPointer<ResultPoint> topRight,
-                              QSharedPointer<ResultPoint> bottomLeft,
-                              QSharedPointer<ResultPoint> bottomRight,
+                                Ref<BitMatrix> matrix);
+  static float computeModuleWidth(std::vector<Ref<ResultPoint> > &vertices);
+  static int computeDimension(Ref<ResultPoint> topLeft,
+                              Ref<ResultPoint> topRight,
+                              Ref<ResultPoint> bottomLeft,
+                              Ref<ResultPoint> bottomRight,
                               float moduleWidth);
-  int computeYDimension(QSharedPointer<ResultPoint> topLeft,
-                        QSharedPointer<ResultPoint> topRight,
-                        QSharedPointer<ResultPoint> bottomLeft,
-                        QSharedPointer<ResultPoint> bottomRight,
+  int computeYDimension(Ref<ResultPoint> topLeft,
+                        Ref<ResultPoint> topRight,
+                        Ref<ResultPoint> bottomLeft,
+                        Ref<ResultPoint> bottomRight,
                         float moduleWidth);
 
-   QSharedPointer<BitMatrix> sampleLines(std::vector<QSharedPointer<ResultPoint> > const &vertices,
+   Ref<BitMatrix> sampleLines(std::vector<Ref<ResultPoint> > const &vertices,
                               int dimensionY,
                               int dimension);
 
   static void codewordsToBitMatrix(std::vector<std::vector<int> > &codewords,
-                                   QSharedPointer<BitMatrix> &matrix);
+                                   Ref<BitMatrix> &matrix);
   static int calculateClusterNumber(int codeword);
-  static QSharedPointer<BitMatrix> sampleGrid(QSharedPointer<BitMatrix> image,
+  static Ref<BitMatrix> sampleGrid(Ref<BitMatrix> image,
                                    int dimension);
   static void computeSymbolWidths(std::vector<float>& symbolWidths,
-                                  const int symbolsPerLine, QSharedPointer<BitMatrix> linesMatrix);
+                                  const int symbolsPerLine, Ref<BitMatrix> linesMatrix);
   static void linesMatrixToCodewords(std::vector<std::vector<int> > &clusterNumbers,
                                      const int symbolsPerLine,
                                      const std::vector<float> &symbolWidths,
-                                     QSharedPointer<BitMatrix> linesMatrix,
+                                     Ref<BitMatrix> linesMatrix,
                                      std::vector<std::vector<int> > &codewords);
   static std::vector<std::vector<std::map<int, int> > >
       distributeVotes(const int symbolsPerLine,
@@ -111,12 +111,12 @@ private:
   static Point intersection(Line a, Line b);
 
 public:
-  LinesSampler(QSharedPointer<BitMatrix> linesMatrix, int dimension);
-  QSharedPointer<BitMatrix> sample();
+  LinesSampler(Ref<BitMatrix> linesMatrix, int dimension);
+  Ref<BitMatrix> sample();
 };
 
 }
 }
 }
 
-#endif // ZXING_LINESSAMPLER_H
+#endif // __LINESSAMPLER_H__

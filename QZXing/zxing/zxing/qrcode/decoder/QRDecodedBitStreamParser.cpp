@@ -57,11 +57,11 @@ namespace {int GB2312_SUBSET = 1;}
 void DecodedBitStreamParser::append(std::string &result,
                                     string const& in,
                                     const char *src) {
-    append(result, (zxing::byte const*)in.c_str(), in.length(), src);
+    append(result, (char const*)in.c_str(), in.length(), src);
 }
 
 void DecodedBitStreamParser::append(std::string &result,
-                                    const zxing::byte *bufIn,
+                                    const char *bufIn,
                                     size_t nIn,
                                     const char *src) {
 #ifndef NO_ICONV
@@ -75,7 +75,7 @@ void DecodedBitStreamParser::append(std::string &result,
         return;
     }
 
-    const int maxOut = 4 * int(nIn) + 1;
+    const int maxOut = 4 * nIn + 1;
     char* bufOut = new char[maxOut];
 
     ICONV_CONST char *fromPtr = (ICONV_CONST char *)bufIn;
@@ -97,7 +97,7 @@ void DecodedBitStreamParser::append(std::string &result,
     }
     iconv_close(cd);
 
-    int nResult = maxOut - int(nTo);
+    int nResult = maxOut - nTo;
     bufOut[nResult] = '\0';
     result.append((const char *)bufOut);
     delete[] bufOut;
@@ -107,7 +107,7 @@ void DecodedBitStreamParser::append(std::string &result,
 #endif
 }
 
-void DecodedBitStreamParser::decodeHanziSegment(QSharedPointer<BitSource> bits_,
+void DecodedBitStreamParser::decodeHanziSegment(Ref<BitSource> bits_,
                                                 string& result,
                                                 int count) {
     BitSource& bits (*bits_);
@@ -119,7 +119,7 @@ void DecodedBitStreamParser::decodeHanziSegment(QSharedPointer<BitSource> bits_,
     // Each character will require 2 bytes. Read the characters as 2-byte pairs
     // and decode as GB2312 afterwards
     size_t nBytes = 2 * count;
-    byte* buffer = new byte[nBytes];
+    char* buffer = new char[nBytes];
     int offset = 0;
     while (count > 0) {
         // Each 13 bits encodes a 2-byte character
@@ -132,8 +132,8 @@ void DecodedBitStreamParser::decodeHanziSegment(QSharedPointer<BitSource> bits_,
             // In the 0xB0A1 to 0xFAFE range
             assembledTwoBytes += 0x0A6A1;
         }
-        buffer[offset] = (zxing::byte) ((assembledTwoBytes >> 8) & 0xFF);
-        buffer[offset + 1] = (zxing::byte) (assembledTwoBytes & 0xFF);
+        buffer[offset] = (char) ((assembledTwoBytes >> 8) & 0xFF);
+        buffer[offset + 1] = (char) (assembledTwoBytes & 0xFF);
         offset += 2;
         count--;
     }
@@ -149,11 +149,11 @@ void DecodedBitStreamParser::decodeHanziSegment(QSharedPointer<BitSource> bits_,
     delete [] buffer;
 }
 
-void DecodedBitStreamParser::decodeKanjiSegment(QSharedPointer<BitSource> bits, std::string &result, int count) {
+void DecodedBitStreamParser::decodeKanjiSegment(Ref<BitSource> bits, std::string &result, int count) {
     // Each character will require 2 bytes. Read the characters as 2-byte pairs
     // and decode as Shift_JIS afterwards
     size_t nBytes = 2 * count;
-    byte* buffer = new byte[nBytes];
+    char* buffer = new char[nBytes];
     int offset = 0;
     while (count > 0) {
         // Each 13 bits encodes a 2-byte character
@@ -167,8 +167,8 @@ void DecodedBitStreamParser::decodeKanjiSegment(QSharedPointer<BitSource> bits, 
             // In the 0xE040 to 0xEBBF range
             assembledTwoBytes += 0x0C140;
         }
-        buffer[offset] = (zxing::byte)(assembledTwoBytes >> 8);
-        buffer[offset + 1] = (zxing::byte)assembledTwoBytes;
+        buffer[offset] = (char)(assembledTwoBytes >> 8);
+        buffer[offset + 1] = (char)assembledTwoBytes;
         offset += 2;
         count--;
     }
@@ -182,11 +182,11 @@ void DecodedBitStreamParser::decodeKanjiSegment(QSharedPointer<BitSource> bits, 
     delete[] buffer;
 }
 
-std::string DecodedBitStreamParser::decodeByteSegment(QSharedPointer<BitSource> bits_,
+std::string DecodedBitStreamParser::decodeByteSegment(Ref<BitSource> bits_,
                                                       string& result,
                                                       int count,
-                                                      CharacterSetECI const * currentCharacterSetECI,
-                                                      QSharedPointer<std::vector< QSharedPointer<std::vector<zxing::byte>>>> byteSegments,
+                                                      CharacterSetECI* currentCharacterSetECI,
+                                                      ArrayRef< ArrayRef<char> >& byteSegments,
                                                       Hashtable const& hints) {
     int nBytes = count;
     BitSource& bits (*bits_);
@@ -195,10 +195,10 @@ std::string DecodedBitStreamParser::decodeByteSegment(QSharedPointer<BitSource> 
         throw FormatException();
     }
 
-    QSharedPointer<std::vector<zxing::byte>> bytes_ (new std::vector<zxing::byte>(count));
-    byte* readBytes = &(*bytes_)[0];
+    ArrayRef<char> bytes_ (count);
+    char* readBytes = &(*bytes_)[0];
     for (int i = 0; i < count; i++) {
-        readBytes[i] = (zxing::byte) bits.readBits(8);
+        readBytes[i] = (char) bits.readBits(8);
     }
     string encoding;
     if (currentCharacterSetECI == 0) {
@@ -217,19 +217,18 @@ std::string DecodedBitStreamParser::decodeByteSegment(QSharedPointer<BitSource> 
         (void)ignored;
         throw FormatException();
     }
-    byteSegments->push_back(bytes_);
+    byteSegments->values().push_back(bytes_);
     return encoding;
 }
 
-void DecodedBitStreamParser::decodeNumericSegment(QSharedPointer<BitSource> bits, std::string &result, int count) {
+void DecodedBitStreamParser::decodeNumericSegment(Ref<BitSource> bits, std::string &result, int count) {
     int nBytes = count;
-    byte* bytes = new byte[nBytes];
+    char* bytes = new char[nBytes];
     int i = 0;
     // Read three digits at a time
     while (count >= 3) {
         // Each 10 bits encodes three digits
         if (bits->available() < 10) {
-            delete[] bytes;
             throw ReaderException("format exception");
         }
         int threeDigitsBits = bits->readBits(10);
@@ -283,7 +282,7 @@ char DecodedBitStreamParser::toAlphaNumericChar(size_t value) {
     return ALPHANUMERIC_CHARS[value];
 }
 
-void DecodedBitStreamParser::decodeAlphanumericSegment(QSharedPointer<BitSource> bits_,
+void DecodedBitStreamParser::decodeAlphanumericSegment(Ref<BitSource> bits_,
                                                        string& result,
                                                        int count,
                                                        bool fc1InEffect) {
@@ -320,7 +319,7 @@ void DecodedBitStreamParser::decodeAlphanumericSegment(QSharedPointer<BitSource>
                     r << s[i++];
                 } else {
                     // In alpha mode, % should be converted to FNC1 separator 0x1D
-                    r << (zxing::byte)0x1D;
+                    r << (char)0x1D;
                 }
             }
         }
@@ -350,17 +349,17 @@ int parseECIValue(BitSource& bits) {
 }
 }
 
-QSharedPointer<DecoderResult>
-DecodedBitStreamParser::decode(QSharedPointer<std::vector<zxing::byte>> bytes,
-                               QSharedPointer<Version> version,
+Ref<DecoderResult>
+DecodedBitStreamParser::decode(ArrayRef<char> bytes,
+                               Version* version,
                                ErrorCorrectionLevel const& ecLevel,
                                Hashtable const& hints) {
-    QSharedPointer<BitSource> bits_ (new BitSource(bytes));
+    Ref<BitSource> bits_ (new BitSource(bytes));
     BitSource& bits (*bits_);
     string result;
     result.reserve(50);
-    QSharedPointer<std::vector< QSharedPointer<std::vector<zxing::byte>>>> byteSegments (new std::vector< QSharedPointer<std::vector<zxing::byte>>>());
-    const CharacterSetECI* currentCharacterSetECI = 0;
+    ArrayRef< ArrayRef<char> > byteSegments (0);
+    CharacterSetECI* currentCharacterSetECI = 0;
     string charSet = "";
     try {
         bool fc1InEffect = false;
@@ -429,6 +428,6 @@ DecodedBitStreamParser::decode(QSharedPointer<std::vector<zxing::byte>> bytes,
         // from readBits() calls
         throw FormatException();
     }
-    return QSharedPointer<DecoderResult>(new DecoderResult(bytes, QSharedPointer<String>(new String(result)), byteSegments, (string)ecLevel, charSet));
+    return Ref<DecoderResult>(new DecoderResult(bytes, Ref<String>(new String(result)), byteSegments, (string)ecLevel, charSet));
 }
 

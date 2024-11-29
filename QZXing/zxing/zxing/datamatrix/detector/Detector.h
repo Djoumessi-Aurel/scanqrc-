@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_DETECTOR_H
-#define ZXING_DETECTOR_H
+#ifndef __DETECTOR_H__
+#define __DETECTOR_H__
 
 /*
  *  Detector.h
@@ -22,7 +22,7 @@
  * limitations under the License.
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/common/DetectorResult.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/common/PerspectiveTransform.h>
@@ -31,38 +31,38 @@
 namespace zxing {
 namespace datamatrix {
 
-class ResultPointsAndTransitions {
+class ResultPointsAndTransitions: public Counted {
   private:
-    QSharedPointer<ResultPoint> to_;
-    QSharedPointer<ResultPoint> from_;
+    Ref<ResultPoint> to_;
+    Ref<ResultPoint> from_;
     int transitions_;
 
   public:
     ResultPointsAndTransitions();
-    ResultPointsAndTransitions(QSharedPointer<ResultPoint> from, QSharedPointer<ResultPoint> to, int transitions);
-    QSharedPointer<ResultPoint> getFrom();
-    QSharedPointer<ResultPoint> getTo();
+    ResultPointsAndTransitions(Ref<ResultPoint> from, Ref<ResultPoint> to, int transitions);
+    Ref<ResultPoint> getFrom();
+    Ref<ResultPoint> getTo();
     int getTransitions();
 };
 
-class Detector {
+class Detector: public Counted {
   private:
-    QSharedPointer<BitMatrix> image_;
+    Ref<BitMatrix> image_;
 
   protected:
-    QSharedPointer<BitMatrix> sampleGrid(QSharedPointer<BitMatrix> image, int dimensionX, int dimensionY,
-        QSharedPointer<PerspectiveTransform> transform);
+    Ref<BitMatrix> sampleGrid(Ref<BitMatrix> image, int dimensionX, int dimensionY,
+        Ref<PerspectiveTransform> transform);
 
-    void insertionSort(std::vector<QSharedPointer<ResultPointsAndTransitions> >& vector);
+    void insertionSort(std::vector<Ref<ResultPointsAndTransitions> >& vector);
 
-    QSharedPointer<ResultPoint> correctTopRightRectangular(QSharedPointer<ResultPoint> bottomLeft,
-        QSharedPointer<ResultPoint> bottomRight, QSharedPointer<ResultPoint> topLeft, QSharedPointer<ResultPoint> topRight,
+    Ref<ResultPoint> correctTopRightRectangular(Ref<ResultPoint> bottomLeft,
+        Ref<ResultPoint> bottomRight, Ref<ResultPoint> topLeft, Ref<ResultPoint> topRight,
         int dimensionTop, int dimensionRight);
-    QSharedPointer<ResultPoint> correctTopRight(QSharedPointer<ResultPoint> bottomLeft, QSharedPointer<ResultPoint> bottomRight,
-        QSharedPointer<ResultPoint> topLeft, QSharedPointer<ResultPoint> topRight, int dimension);
-    bool isValid(QSharedPointer<ResultPoint> p);
-    int distance(QSharedPointer<ResultPoint> a, QSharedPointer<ResultPoint> b);
-    QSharedPointer<ResultPointsAndTransitions> transitionsBetween(QSharedPointer<ResultPoint> from, QSharedPointer<ResultPoint> to);
+    Ref<ResultPoint> correctTopRight(Ref<ResultPoint> bottomLeft, Ref<ResultPoint> bottomRight,
+        Ref<ResultPoint> topLeft, Ref<ResultPoint> topRight, int dimension);
+    bool isValid(Ref<ResultPoint> p);
+    int distance(Ref<ResultPoint> a, Ref<ResultPoint> b);
+    Ref<ResultPointsAndTransitions> transitionsBetween(Ref<ResultPoint> from, Ref<ResultPoint> to);
     int min(int a, int b) {
       return a > b ? b : a;
     }
@@ -75,20 +75,20 @@ class Detector {
     }
 
   public:
-    QSharedPointer<BitMatrix> getImage();
-    Detector(QSharedPointer<BitMatrix> image);
+    Ref<BitMatrix> getImage();
+    Detector(Ref<BitMatrix> image);
 
-    virtual QSharedPointer<PerspectiveTransform> createTransform(QSharedPointer<ResultPoint> topLeft,
-        QSharedPointer<ResultPoint> topRight, QSharedPointer<ResultPoint> bottomLeft, QSharedPointer<ResultPoint> bottomRight,
+    virtual Ref<PerspectiveTransform> createTransform(Ref<ResultPoint> topLeft,
+        Ref<ResultPoint> topRight, Ref<ResultPoint> bottomLeft, Ref<ResultPoint> bottomRight,
         int dimensionX, int dimensionY);
 
-    QSharedPointer<DetectorResult> detect();
+    Ref<DetectorResult> detect();
 
   private:
-    int compare(QSharedPointer<ResultPointsAndTransitions> a, QSharedPointer<ResultPointsAndTransitions> b);
+    int compare(Ref<ResultPointsAndTransitions> a, Ref<ResultPointsAndTransitions> b);
 };
 
 }
 }
 
-#endif // ZXING_DETECTOR_H
+#endif // __DETECTOR_H__

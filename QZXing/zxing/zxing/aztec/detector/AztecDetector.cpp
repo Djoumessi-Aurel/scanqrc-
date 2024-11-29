@@ -33,14 +33,14 @@ using std::vector;
 using zxing::aztec::Detector;
 using zxing::aztec::Point;
 using zxing::aztec::AztecDetectorResult;
-
-
+using zxing::Ref;
+using zxing::ArrayRef;
 using zxing::ResultPoint;
 using zxing::BitArray;
 using zxing::BitMatrix;
 using zxing::common::detector::MathUtils;
 
-Detector::Detector(QSharedPointer<BitMatrix> image):
+Detector::Detector(Ref<BitMatrix> image):
   image_(image),
   nbLayers_(0),
   nbDataBlocks_(0),
@@ -48,34 +48,34 @@ Detector::Detector(QSharedPointer<BitMatrix> image):
         
 }
         
-QSharedPointer<AztecDetectorResult> Detector::detect() {
-  QSharedPointer<Point> pCenter = getMatrixCenter();
+Ref<AztecDetectorResult> Detector::detect() {
+  Ref<Point> pCenter = getMatrixCenter();
             
-  std::vector<QSharedPointer<Point> > bullEyeCornerPoints = getBullEyeCornerPoints(pCenter);
+  std::vector<Ref<Point> > bullEyeCornerPoints = getBullEyeCornerPoints(pCenter);
             
   extractParameters(bullEyeCornerPoints);
   
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > corners = getMatrixCornerPoints(bullEyeCornerPoints);
+  ArrayRef< Ref<ResultPoint> > corners = getMatrixCornerPoints(bullEyeCornerPoints);
             
-  QSharedPointer<BitMatrix> bits =
+  Ref<BitMatrix> bits =
     sampleGrid(image_,
-               (*corners)[shift_%4],
-               (*corners)[(shift_+3)%4],
-               (*corners)[(shift_+2)%4],
-               (*corners)[(shift_+1)%4]);
+               corners[shift_%4],
+               corners[(shift_+3)%4],
+               corners[(shift_+2)%4],
+               corners[(shift_+1)%4]);
             
   // std::printf("------------\ndetected: compact:%s, nbDataBlocks:%d, nbLayers:%d\n------------\n",compact_?"YES":"NO", nbDataBlocks_, nbLayers_);
             
-  return QSharedPointer<AztecDetectorResult>(new AztecDetectorResult(bits, corners, compact_, nbDataBlocks_, nbLayers_));
+  return Ref<AztecDetectorResult>(new AztecDetectorResult(bits, corners, compact_, nbDataBlocks_, nbLayers_));
 }
         
-void Detector::extractParameters(std::vector<QSharedPointer<Point> > bullEyeCornerPoints) {
+void Detector::extractParameters(std::vector<Ref<Point> > bullEyeCornerPoints) {
   int twoCenterLayers = 2 * nbCenterLayers_;
   // get the bits around the bull's eye
-  QSharedPointer<BitArray> resab = sampleLine(bullEyeCornerPoints[0], bullEyeCornerPoints[1], twoCenterLayers+1);
-  QSharedPointer<BitArray> resbc = sampleLine(bullEyeCornerPoints[1], bullEyeCornerPoints[2], twoCenterLayers+1);
-  QSharedPointer<BitArray> rescd = sampleLine(bullEyeCornerPoints[2], bullEyeCornerPoints[3], twoCenterLayers+1);
-  QSharedPointer<BitArray> resda = sampleLine(bullEyeCornerPoints[3], bullEyeCornerPoints[0], twoCenterLayers+1);
+  Ref<BitArray> resab = sampleLine(bullEyeCornerPoints[0], bullEyeCornerPoints[1], twoCenterLayers+1);
+  Ref<BitArray> resbc = sampleLine(bullEyeCornerPoints[1], bullEyeCornerPoints[2], twoCenterLayers+1);
+  Ref<BitArray> rescd = sampleLine(bullEyeCornerPoints[2], bullEyeCornerPoints[3], twoCenterLayers+1);
+  Ref<BitArray> resda = sampleLine(bullEyeCornerPoints[3], bullEyeCornerPoints[0], twoCenterLayers+1);
         
   // determin the orientation of the matrix
   if (resab->get(0) && resab->get(twoCenterLayers)) {
@@ -96,8 +96,8 @@ void Detector::extractParameters(std::vector<QSharedPointer<Point> > bullEyeCorn
   //c      b
             
   //flatten the bits in a single array
-  QSharedPointer<BitArray> parameterData(new BitArray(compact_?28:40));
-  QSharedPointer<BitArray> shiftedParameterData(new BitArray(compact_?28:40));
+  Ref<BitArray> parameterData(new BitArray(compact_?28:40));
+  Ref<BitArray> shiftedParameterData(new BitArray(compact_?28:40));
             
   if (compact_) {
     for (int i = 0; i < 7; i++) {
@@ -135,8 +135,8 @@ void Detector::extractParameters(std::vector<QSharedPointer<Point> > bullEyeCorn
   getParameters(parameterData);
 }
         
-QSharedPointer<std::vector<QSharedPointer<ResultPoint>> >
-Detector::getMatrixCornerPoints(std::vector<QSharedPointer<Point> > bullEyeCornerPoints) {
+ArrayRef< Ref<ResultPoint> >
+Detector::getMatrixCornerPoints(std::vector<Ref<Point> > bullEyeCornerPoints) {
   float ratio = (2 * nbLayers_ + (nbLayers_ > 4 ? 1 : 0) + (nbLayers_ - 4) / 8) / (2.0f * nbCenterLayers_);
             
   int dx = bullEyeCornerPoints[0]->getX() - bullEyeCornerPoints[2]->getX();
@@ -167,15 +167,16 @@ Detector::getMatrixCornerPoints(std::vector<QSharedPointer<Point> > bullEyeCorne
       !isValid(targetdx, targetdy)) {
     throw ReaderException("matrix extends over image bounds");
   }
-  std::vector< QSharedPointer<ResultPoint> >* array = new std::vector< QSharedPointer<ResultPoint> >();
-  array->push_back(QSharedPointer<ResultPoint>(new ResultPoint(float(targetax), float(targetay))));
-  array->push_back(QSharedPointer<ResultPoint>(new ResultPoint(float(targetbx), float(targetby))));
-  array->push_back(QSharedPointer<ResultPoint>(new ResultPoint(float(targetcx), float(targetcy))));
-  array->push_back(QSharedPointer<ResultPoint>(new ResultPoint(float(targetdx), float(targetdy))));
-  return QSharedPointer<std::vector<QSharedPointer<ResultPoint>> >(array);
+  Array< Ref<ResultPoint> >* array = new Array< Ref<ResultPoint> >();
+  vector< Ref<ResultPoint> >& returnValue (array->values());
+  returnValue.push_back(Ref<ResultPoint>(new ResultPoint(float(targetax), float(targetay))));
+  returnValue.push_back(Ref<ResultPoint>(new ResultPoint(float(targetbx), float(targetby))));
+  returnValue.push_back(Ref<ResultPoint>(new ResultPoint(float(targetcx), float(targetcy))));
+  returnValue.push_back(Ref<ResultPoint>(new ResultPoint(float(targetdx), float(targetdy))));
+  return ArrayRef< Ref<ResultPoint> >(array);
 }
         
-void Detector::correctParameterData(QSharedPointer<zxing::BitArray> parameterData, bool compact) {
+void Detector::correctParameterData(Ref<zxing::BitArray> parameterData, bool compact) {
   int numCodewords;
   int numDataCodewords;
             
@@ -189,14 +190,14 @@ void Detector::correctParameterData(QSharedPointer<zxing::BitArray> parameterDat
             
   int numECCodewords = numCodewords - numDataCodewords;
             
-  QSharedPointer<std::vector<int>> parameterWords(new std::vector<int>(numCodewords));
+  ArrayRef<int> parameterWords(new Array<int>(numCodewords));
             
   int codewordSize = 4;
   for (int i = 0; i < numCodewords; i++) {
     int flag = 1;
     for (int j = 1; j <= codewordSize; j++) {
       if (parameterData->get(codewordSize*i + codewordSize - j)) {
-        (*parameterWords)[i] += flag;
+        parameterWords[i] += flag;
       }
       flag <<= 1;
     }
@@ -216,7 +217,7 @@ void Detector::correctParameterData(QSharedPointer<zxing::BitArray> parameterDat
   for (int i = 0; i < numDataCodewords; i++) {
     int flag = 1;
     for (int j = 1; j <= codewordSize; j++) {
-      if (((*parameterWords)[i] & flag) == flag) {
+      if ((parameterWords[i] & flag) == flag) {
         parameterData->set(i*codewordSize+codewordSize-j);
       }
       flag <<= 1;
@@ -224,19 +225,19 @@ void Detector::correctParameterData(QSharedPointer<zxing::BitArray> parameterDat
   }
 }
         
-std::vector<QSharedPointer<Point> > Detector::getBullEyeCornerPoints(QSharedPointer<zxing::aztec::Point> pCenter) {
-  QSharedPointer<Point> pina = pCenter;
-  QSharedPointer<Point> pinb = pCenter;
-  QSharedPointer<Point> pinc = pCenter;
-  QSharedPointer<Point> pind = pCenter;
+std::vector<Ref<Point> > Detector::getBullEyeCornerPoints(Ref<zxing::aztec::Point> pCenter) {
+  Ref<Point> pina = pCenter;
+  Ref<Point> pinb = pCenter;
+  Ref<Point> pinc = pCenter;
+  Ref<Point> pind = pCenter;
             
   bool color = true;
             
   for (nbCenterLayers_ = 1; nbCenterLayers_ < 9; nbCenterLayers_++) {
-    QSharedPointer<Point> pouta = getFirstDifferent(pina, color, 1, -1);
-    QSharedPointer<Point> poutb = getFirstDifferent(pinb, color, 1, 1);
-    QSharedPointer<Point> poutc = getFirstDifferent(pinc, color, -1, 1);
-    QSharedPointer<Point> poutd = getFirstDifferent(pind, color, -1, -1);
+    Ref<Point> pouta = getFirstDifferent(pina, color, 1, -1);
+    Ref<Point> poutb = getFirstDifferent(pinb, color, 1, 1);
+    Ref<Point> poutc = getFirstDifferent(pinc, color, -1, 1);
+    Ref<Point> poutd = getFirstDifferent(pind, color, -1, -1);
             
     //d    a
     //
@@ -290,21 +291,21 @@ std::vector<QSharedPointer<Point> > Detector::getBullEyeCornerPoints(QSharedPoin
     throw ReaderException("bullseye extends over image bounds");
   }
             
-  std::vector<QSharedPointer<Point> > returnValue;
-  returnValue.push_back(QSharedPointer<Point>(new Point(targetax, targetay)));
-  returnValue.push_back(QSharedPointer<Point>(new Point(targetbx, targetby)));
-  returnValue.push_back(QSharedPointer<Point>(new Point(targetcx, targetcy)));
-  returnValue.push_back(QSharedPointer<Point>(new Point(targetdx, targetdy)));
+  std::vector<Ref<Point> > returnValue;
+  returnValue.push_back(Ref<Point>(new Point(targetax, targetay)));
+  returnValue.push_back(Ref<Point>(new Point(targetbx, targetby)));
+  returnValue.push_back(Ref<Point>(new Point(targetcx, targetcy)));
+  returnValue.push_back(Ref<Point>(new Point(targetdx, targetdy)));
             
   return returnValue;
             
 }
         
-QSharedPointer<Point> Detector::getMatrixCenter() {
-  QSharedPointer<ResultPoint> pointA, pointB, pointC, pointD;
+Ref<Point> Detector::getMatrixCenter() {
+  Ref<ResultPoint> pointA, pointB, pointC, pointD;
   try {
                 
-    std::vector<QSharedPointer<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_).detect();
+    std::vector<Ref<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_).detect();
     pointA = cornerPoints[0];
     pointB = cornerPoints[1];
     pointC = cornerPoints[2];
@@ -316,10 +317,10 @@ QSharedPointer<Point> Detector::getMatrixCenter() {
     int cx = image_->getWidth() / 2;
     int cy = image_->getHeight() / 2;
                 
-    pointA = getFirstDifferent(QSharedPointer<Point>(new Point(cx+7, cy-7)), false,  1, -1)->toResultPoint();
-    pointB = getFirstDifferent(QSharedPointer<Point>(new Point(cx+7, cy+7)), false,  1,  1)->toResultPoint();
-    pointC = getFirstDifferent(QSharedPointer<Point>(new Point(cx-7, cy+7)), false, -1, -1)->toResultPoint();
-    pointD = getFirstDifferent(QSharedPointer<Point>(new Point(cx-7, cy-7)), false, -1, -1)->toResultPoint();
+    pointA = getFirstDifferent(Ref<Point>(new Point(cx+7, cy-7)), false,  1, -1)->toResultPoint();
+    pointB = getFirstDifferent(Ref<Point>(new Point(cx+7, cy+7)), false,  1,  1)->toResultPoint();
+    pointC = getFirstDifferent(Ref<Point>(new Point(cx-7, cy+7)), false, -1, -1)->toResultPoint();
+    pointD = getFirstDifferent(Ref<Point>(new Point(cx-7, cy-7)), false, -1, -1)->toResultPoint();
                                       
   }
             
@@ -328,7 +329,7 @@ QSharedPointer<Point> Detector::getMatrixCenter() {
             
   try {
                 
-    std::vector<QSharedPointer<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_, 15, cx, cy).detect();
+    std::vector<Ref<ResultPoint> > cornerPoints = WhiteRectangleDetector(image_, 15, cx, cy).detect();
     pointA = cornerPoints[0];
     pointB = cornerPoints[1];
     pointC = cornerPoints[2];
@@ -337,25 +338,25 @@ QSharedPointer<Point> Detector::getMatrixCenter() {
   } catch (NotFoundException const& e) {
     (void)e;
                 
-    pointA = getFirstDifferent(QSharedPointer<Point>(new Point(cx+7, cy-7)), false,  1, -1)->toResultPoint();
-    pointB = getFirstDifferent(QSharedPointer<Point>(new Point(cx+7, cy+7)), false,  1,  1)->toResultPoint();
-    pointC = getFirstDifferent(QSharedPointer<Point>(new Point(cx-7, cy+7)), false, -1, 1)->toResultPoint();
-    pointD = getFirstDifferent(QSharedPointer<Point>(new Point(cx-7, cy-7)), false, -1, -1)->toResultPoint();
+    pointA = getFirstDifferent(Ref<Point>(new Point(cx+7, cy-7)), false,  1, -1)->toResultPoint();
+    pointB = getFirstDifferent(Ref<Point>(new Point(cx+7, cy+7)), false,  1,  1)->toResultPoint();
+    pointC = getFirstDifferent(Ref<Point>(new Point(cx-7, cy+7)), false, -1, 1)->toResultPoint();
+    pointD = getFirstDifferent(Ref<Point>(new Point(cx-7, cy-7)), false, -1, -1)->toResultPoint();
                 
   }
             
   cx = MathUtils::round((pointA->getX() + pointD->getX() + pointB->getX() + pointC->getX()) / 4.0f);
   cy = MathUtils::round((pointA->getY() + pointD->getY() + pointB->getY() + pointC->getY()) / 4.0f);
             
-  return QSharedPointer<Point>(new Point(cx, cy));
+  return Ref<Point>(new Point(cx, cy));
             
 }
         
-QSharedPointer<BitMatrix> Detector::sampleGrid(QSharedPointer<zxing::BitMatrix> image,
-                                    QSharedPointer<zxing::ResultPoint> topLeft,
-                                    QSharedPointer<zxing::ResultPoint> bottomLeft,
-                                    QSharedPointer<zxing::ResultPoint> bottomRight,
-                                    QSharedPointer<zxing::ResultPoint> topRight) {
+Ref<BitMatrix> Detector::sampleGrid(Ref<zxing::BitMatrix> image,
+                                    Ref<zxing::ResultPoint> topLeft,
+                                    Ref<zxing::ResultPoint> bottomLeft,
+                                    Ref<zxing::ResultPoint> bottomRight,
+                                    Ref<zxing::ResultPoint> topRight) {
   int dimension;
   if (compact_) {
     dimension = 4 * nbLayers_+11;
@@ -389,7 +390,7 @@ QSharedPointer<BitMatrix> Detector::sampleGrid(QSharedPointer<zxing::BitMatrix> 
                             bottomLeft->getY());
 }
         
-void Detector::getParameters(QSharedPointer<zxing::BitArray> parameterData) {
+void Detector::getParameters(Ref<zxing::BitArray> parameterData) {
   nbLayers_ = 0;
   nbDataBlocks_ = 0;
             
@@ -422,8 +423,8 @@ void Detector::getParameters(QSharedPointer<zxing::BitArray> parameterData) {
   nbDataBlocks_++;
 }
         
-QSharedPointer<BitArray> Detector::sampleLine(QSharedPointer<zxing::aztec::Point> p1, QSharedPointer<zxing::aztec::Point> p2, int size) {
-  QSharedPointer<BitArray> res(new BitArray(size));
+Ref<BitArray> Detector::sampleLine(Ref<zxing::aztec::Point> p1, Ref<zxing::aztec::Point> p2, int size) {
+  Ref<BitArray> res(new BitArray(size));
             
   float d = distance(p1, p2);
   float moduleSize = d / (size-1);
@@ -442,16 +443,16 @@ QSharedPointer<BitArray> Detector::sampleLine(QSharedPointer<zxing::aztec::Point
   return res;
 }
         
-bool Detector::isWhiteOrBlackRectangle(QSharedPointer<zxing::aztec::Point> p1,
-                                       QSharedPointer<zxing::aztec::Point> p2,
-                                       QSharedPointer<zxing::aztec::Point> p3,
-                                       QSharedPointer<zxing::aztec::Point> p4) {
+bool Detector::isWhiteOrBlackRectangle(Ref<zxing::aztec::Point> p1,
+                                       Ref<zxing::aztec::Point> p2,
+                                       Ref<zxing::aztec::Point> p3,
+                                       Ref<zxing::aztec::Point> p4) {
   int corr = 3;
             
-  p1.reset(new Point(p1->getX() - corr, p1->getY() + corr));
-  p2.reset(new Point(p2->getX() - corr, p2->getY() - corr));
-  p3.reset(new Point(p3->getX() + corr, p3->getY() - corr));
-  p4.reset(new Point(p4->getX() + corr, p4->getY() + corr));
+  p1 = new Point(p1->getX() - corr, p1->getY() + corr);
+  p2 = new Point(p2->getX() - corr, p2->getY() - corr);
+  p3 = new Point(p3->getX() + corr, p3->getY() - corr);
+  p4 = new Point(p4->getX() + corr, p4->getY() + corr);
             
   int cInit = getColor(p4, p1);
             
@@ -480,7 +481,7 @@ bool Detector::isWhiteOrBlackRectangle(QSharedPointer<zxing::aztec::Point> p1,
   return true;
 }
         
-int Detector::getColor(QSharedPointer<zxing::aztec::Point> p1, QSharedPointer<zxing::aztec::Point> p2) {
+int Detector::getColor(Ref<zxing::aztec::Point> p1, Ref<zxing::aztec::Point> p2) {
   float d = distance(p1, p2);
             
   float dx = (p2->getX() - p1->getX()) / d;
@@ -511,7 +512,7 @@ int Detector::getColor(QSharedPointer<zxing::aztec::Point> p1, QSharedPointer<zx
   return (errRatio <= 0.1) == colorModel ? 1 : -1;
 }
         
-QSharedPointer<Point> Detector::getFirstDifferent(QSharedPointer<zxing::aztec::Point> init, bool color, int dx, int dy) {
+Ref<Point> Detector::getFirstDifferent(Ref<zxing::aztec::Point> init, bool color, int dx, int dy) {
   int x = init->getX() + dx;
   int y = init->getY() + dy;
             
@@ -535,13 +536,13 @@ QSharedPointer<Point> Detector::getFirstDifferent(QSharedPointer<zxing::aztec::P
             
   y -= dy;
             
-  return QSharedPointer<Point>(new Point(x, y));
+  return Ref<Point>(new Point(x, y));
 }
 
 bool Detector::isValid(int x, int y) {
   return x >= 0 && x < (int)image_->getWidth() && y > 0 && y < (int)image_->getHeight();
 }
         
-float Detector::distance(QSharedPointer<zxing::aztec::Point> a, QSharedPointer<zxing::aztec::Point> b) {
+float Detector::distance(Ref<zxing::aztec::Point> a, Ref<zxing::aztec::Point> b) {
   return sqrtf((float)((a->getX() - b->getX()) * (a->getX() - b->getX()) + (a->getY() - b->getY()) * (a->getY() - b->getY())));
 }

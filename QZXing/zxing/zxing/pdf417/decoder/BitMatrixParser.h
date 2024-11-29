@@ -1,5 +1,5 @@
-#ifndef ZXING_BIT_MATRIX_PARSER_PDF_H
-#define ZXING_BIT_MATRIX_PARSER_PDF_H
+#ifndef __BIT_MATRIX_PARSER__PDF_H__
+#define __BIT_MATRIX_PARSER__PDF_H__
 
 /*
  *  BitMatrixParser.h / PDF417
@@ -23,21 +23,22 @@
 #include <zxing/ReaderException.h>
 #include <zxing/FormatException.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <stdint.h>
 
 namespace zxing {
 namespace pdf417 {
 namespace decoder {
 
-class BitMatrixParser  {
+class BitMatrixParser : public Counted {
 private:
   static const int MAX_ROWS;
   // Maximum Codewords (Data + Error)
   static const int MAX_CW_CAPACITY;
   static const int MODULES_IN_SYMBOL;
 
-  QSharedPointer<BitMatrix> bitMatrix_;
+  Ref<BitMatrix> bitMatrix_;
   int rows_; /* = 0 */
   int leftColumnECData_; /* = 0 */
   int rightColumnECData_; /* = 0 */
@@ -45,7 +46,7 @@ private:
   int aLeftColumnTriple_[3];
   int aRightColumnTriple_[3];
   int eraseCount_; /* = 0 */
-  QSharedPointer<std::vector<int>> erasures_;
+  ArrayRef<int> erasures_;
   int ecLevel_; /* = -1 */
 
 public:
@@ -54,24 +55,24 @@ public:
   static const int CODEWORD_TABLE[];
   
 public:
-  BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix);
-  QSharedPointer<std::vector<int>> getErasures() const {return erasures_;}
+  BitMatrixParser(Ref<BitMatrix> bitMatrix);
+  ArrayRef<int> getErasures() const {return erasures_;}
   int getECLevel() const {return ecLevel_;}
   int getEraseCount() const {return eraseCount_;}
-  QSharedPointer<std::vector<int>> readCodewords(); /* throw(FormatException) */
+  ArrayRef<int> readCodewords(); /* throw(FormatException) */
   static int getCodeword(int64_t symbol, int *pi = NULL);
 
 private:
   bool VerifyOuterColumns(int rownumber);
-  static QSharedPointer<std::vector<int>> trimArray(QSharedPointer<std::vector<int>> array, int size);
+  static ArrayRef<int> trimArray(ArrayRef<int> array, int size);
   static int findCodewordIndex(int64_t symbol);
 
   
   int processRow(int rowNumber,
-                QSharedPointer<std::vector<int>> codewords, int next);
+                ArrayRef<int> codewords, int next);
   
-  int processRow(QSharedPointer<std::vector<int>> rowCounters, int rowNumber, int rowHeight,
-    QSharedPointer<std::vector<int>> codewords, int next); /* throw(FormatException)  */ 
+  int processRow(ArrayRef<int> rowCounters, int rowNumber, int rowHeight,
+    ArrayRef<int> codewords, int next); /* throw(FormatException)  */ 
 protected:
   bool IsEqual(int &a, int &b, int rownumber);
 };
@@ -80,4 +81,4 @@ protected:
 }
 }
 
-#endif // ZXING_BIT_MATRIX_PARSER_PDF_H
+#endif // __BIT_MATRIX_PARSER__PDF_H__

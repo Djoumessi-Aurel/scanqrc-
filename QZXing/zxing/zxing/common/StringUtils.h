@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_STRING_UTILS_H
-#define ZXING_STRING_UTILS_H
+#ifndef __STRING_UTILS__
+#define __STRING_UTILS__
 
 /*
  * Copyright (C) 2010-2011 ZXing authors
@@ -22,7 +22,6 @@
 #include <string>
 #include <map>
 #include <zxing/DecodeHints.h>
-#include <zxing/common/Types.h>
 
 namespace zxing {
 namespace common {
@@ -44,13 +43,10 @@ public:
 
   typedef std::map<DecodeHintType, std::string> Hashtable;
 
-  static std::string guessEncoding(zxing::byte *bytes, int length, Hashtable const& hints);
-
-  static std::string intToStr(int number);
+  static std::string guessEncoding(char* bytes, int length, Hashtable const& hints);
 };
 
 }
 }
 
-#endif // ZXING_STRING_UTILS_H
-
+#endif

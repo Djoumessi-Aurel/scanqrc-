@@ -20,7 +20,7 @@
 #include <zxing/ResultPoint.h>
 
 using std::vector;
-
+using zxing::Ref;
 using zxing::Result;
 using zxing::multi::GenericMultipleBarcodeReader;
 
@@ -34,9 +34,9 @@ GenericMultipleBarcodeReader::GenericMultipleBarcodeReader(Reader& delegate)
 
 GenericMultipleBarcodeReader::~GenericMultipleBarcodeReader(){}
 
-vector<QSharedPointer<Result> > GenericMultipleBarcodeReader::decodeMultiple(QSharedPointer<BinaryBitmap> image,
+vector<Ref<Result> > GenericMultipleBarcodeReader::decodeMultiple(Ref<BinaryBitmap> image,
                                                                   DecodeHints hints) {
-  vector<QSharedPointer<Result> > results;
+  vector<Ref<Result> > results;
   doDecodeMultiple(image, hints, results, 0, 0, 0);
   if (results.empty()){
     throw ReaderException("No code detected");
@@ -44,16 +44,16 @@ vector<QSharedPointer<Result> > GenericMultipleBarcodeReader::decodeMultiple(QSh
   return results;
 }
 
-void GenericMultipleBarcodeReader::doDecodeMultiple(QSharedPointer<BinaryBitmap> image, 
+void GenericMultipleBarcodeReader::doDecodeMultiple(Ref<BinaryBitmap> image, 
                                                     DecodeHints hints,
-                                                    vector<QSharedPointer<Result> >& results,
+                                                    vector<Ref<Result> >& results,
                                                     int xOffset,
                                                     int yOffset,
                                                     int currentDepth) {
   if (currentDepth > MAX_DEPTH) {
     return;
   }
-  QSharedPointer<Result> result;
+  Ref<Result> result;
   try {
     result = delegate_.decode(image, hints);
   } catch (ReaderException const& ignored) {
@@ -62,7 +62,7 @@ void GenericMultipleBarcodeReader::doDecodeMultiple(QSharedPointer<BinaryBitmap>
   }
   bool alreadyFound = false;
   for (unsigned int i = 0; i < results.size(); i++) {
-    QSharedPointer<Result> existingResult = results[i];
+    Ref<Result> existingResult = results[i];
     if (existingResult->getText()->getText() == result->getText()->getText()) {
       alreadyFound = true;
       break;
@@ -72,7 +72,7 @@ void GenericMultipleBarcodeReader::doDecodeMultiple(QSharedPointer<BinaryBitmap>
     results.push_back(translateResultPoints(result, xOffset, yOffset));
   }
   
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > resultPoints = result->getResultPoints();
+  ArrayRef< Ref<ResultPoint> > resultPoints = result->getResultPoints();
   if (resultPoints->empty()) {
     return;
   }
@@ -84,7 +84,7 @@ void GenericMultipleBarcodeReader::doDecodeMultiple(QSharedPointer<BinaryBitmap>
   float maxX = 0.0f;
   float maxY = 0.0f;
   for (int i = 0; i < resultPoints->size(); i++) {
-    QSharedPointer<ResultPoint> point = (*resultPoints)[i];
+    Ref<ResultPoint> point = resultPoints[i];
     float x = point->getX();
     float y = point->getY();
     if (x < minX) {
@@ -123,15 +123,15 @@ void GenericMultipleBarcodeReader::doDecodeMultiple(QSharedPointer<BinaryBitmap>
   }
 }
 
-QSharedPointer<Result> GenericMultipleBarcodeReader::translateResultPoints(QSharedPointer<Result> result, int xOffset, int yOffset){
-    QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > oldResultPoints = result->getResultPoints();
+Ref<Result> GenericMultipleBarcodeReader::translateResultPoints(Ref<Result> result, int xOffset, int yOffset){
+    ArrayRef< Ref<ResultPoint> > oldResultPoints = result->getResultPoints();
   if (oldResultPoints->empty()) {
     return result;
   }
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > newResultPoints;
+  ArrayRef< Ref<ResultPoint> > newResultPoints;
   for (int i = 0; i < oldResultPoints->size(); i++) {
-    QSharedPointer<ResultPoint> oldPoint = (*oldResultPoints)[i];
-    newResultPoints->push_back(QSharedPointer<ResultPoint>(new ResultPoint(oldPoint->getX() + xOffset, oldPoint->getY() + yOffset)));
+    Ref<ResultPoint> oldPoint = oldResultPoints[i];
+    newResultPoints->values().push_back(Ref<ResultPoint>(new ResultPoint(oldPoint->getX() + xOffset, oldPoint->getY() + yOffset)));
   }
-  return QSharedPointer<Result>(new Result(result->getText(), result->getRawBytes(), newResultPoints, result->getBarcodeFormat()));
+  return Ref<Result>(new Result(result->getText(), result->getRawBytes(), newResultPoints, result->getBarcodeFormat()));
 }

@@ -23,16 +23,16 @@
 
 namespace zxing {
 
-DetectorResult::DetectorResult(QSharedPointer<BitMatrix> bits,
-                               QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > points)
+DetectorResult::DetectorResult(Ref<BitMatrix> bits,
+                               ArrayRef< Ref<ResultPoint> > points)
   : bits_(bits), points_(points) {
 }
 
-QSharedPointer<BitMatrix> DetectorResult::getBits() {
+Ref<BitMatrix> DetectorResult::getBits() {
   return bits_;
 }
 
-QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > DetectorResult::getPoints() {
+ArrayRef< Ref<ResultPoint> > DetectorResult::getPoints() {
   return points_;
 }
 

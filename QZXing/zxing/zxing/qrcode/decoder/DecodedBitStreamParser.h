@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_DECODED_BIT_STREAM_PARSER_H
-#define ZXING_DECODED_BIT_STREAM_PARSER_H
+#ifndef __DECODED_BIT_STREAM_PARSER_H__
+#define __DECODED_BIT_STREAM_PARSER_H__
 
 /*
  *  DecodedBitStreamParser.h
@@ -27,7 +27,8 @@
 #include <map>
 #include <zxing/qrcode/decoder/Mode.h>
 #include <zxing/common/BitSource.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/DecoderResult.h>
 #include <zxing/common/CharacterSetECI.h>
 #include <zxing/DecodeHints.h>
@@ -43,24 +44,24 @@ private:
   static char const ALPHANUMERIC_CHARS[];
   static char toAlphaNumericChar(size_t value);
 
-  static void decodeHanziSegment(QSharedPointer<BitSource> bits, std::string &result, int count);
-  static void decodeKanjiSegment(QSharedPointer<BitSource> bits, std::string &result, int count);
-  static void decodeByteSegment(QSharedPointer<BitSource> bits, std::string &result, int count);
-  static std::string decodeByteSegment(QSharedPointer<BitSource> bits_,
+  static void decodeHanziSegment(Ref<BitSource> bits, std::string &result, int count);
+  static void decodeKanjiSegment(Ref<BitSource> bits, std::string &result, int count);
+  static void decodeByteSegment(Ref<BitSource> bits, std::string &result, int count);
+  static std::string decodeByteSegment(Ref<BitSource> bits_,
                                 std::string& result,
                                 int count,
-                                common::CharacterSetECI const *currentCharacterSetECI,
-                                QSharedPointer<std::vector<QSharedPointer<std::vector<zxing::byte>> >> byteSegments,
+                                zxing::common::CharacterSetECI* currentCharacterSetECI,
+                                ArrayRef< ArrayRef<char> >& byteSegments,
                                 Hashtable const& hints);
-  static void decodeAlphanumericSegment(QSharedPointer<BitSource> bits, std::string &result, int count, bool fc1InEffect);
-  static void decodeNumericSegment(QSharedPointer<BitSource> bits, std::string &result, int count);
+  static void decodeAlphanumericSegment(Ref<BitSource> bits, std::string &result, int count, bool fc1InEffect);
+  static void decodeNumericSegment(Ref<BitSource> bits, std::string &result, int count);
 
-  static void append(std::string &ost, const zxing::byte *bufIn, size_t nIn, const char *src);
+  static void append(std::string &ost, const char *bufIn, size_t nIn, const char *src);
   static void append(std::string &ost, std::string const& in, const char *src);
 
 public:
-  static QSharedPointer<DecoderResult> decode(QSharedPointer<std::vector<zxing::byte>> bytes,
-                                   QSharedPointer<Version>version,
+  static Ref<DecoderResult> decode(ArrayRef<char> bytes,
+                                   Version *version,
                                    ErrorCorrectionLevel const& ecLevel,
                                    Hashtable const& hints);
 };
@@ -68,4 +69,4 @@ public:
 }
 }
 
-#endif // ZXING_DECODED_BIT_STREAM_PARSER_H
+#endif // __DECODED_BIT_STREAM_PARSER_H__

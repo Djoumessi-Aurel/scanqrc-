@@ -32,11 +32,11 @@ GridSampler GridSampler::gridSampler;
 GridSampler::GridSampler() {
 }
 
-QSharedPointer<BitMatrix> GridSampler::sampleGrid(QSharedPointer<BitMatrix> image, int dimension, QSharedPointer<PerspectiveTransform> transform) {
-  QSharedPointer<BitMatrix> bits(new BitMatrix(dimension));
-  vector<float> points(dimension << 1, 0.0f);
+Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimension, Ref<PerspectiveTransform> transform) {
+  Ref<BitMatrix> bits(new BitMatrix(dimension));
+  vector<float> points(dimension << 1, (const float)0.0f);
   for (int y = 0; y < dimension; y++) {
-    int max = int(points.size());
+    int max = points.size();
     float yValue = (float)y + 0.5f;
     for (int x = 0; x < max; x += 2) {
       points[x] = (float)(x >> 1) + 0.5f;
@@ -53,11 +53,11 @@ QSharedPointer<BitMatrix> GridSampler::sampleGrid(QSharedPointer<BitMatrix> imag
   return bits;
 }
 
-QSharedPointer<BitMatrix> GridSampler::sampleGrid(QSharedPointer<BitMatrix> image, int dimensionX, int dimensionY, QSharedPointer<PerspectiveTransform> transform) {
-  QSharedPointer<BitMatrix> bits(new BitMatrix(dimensionX, dimensionY));
-  vector<float> points(dimensionX << 1, 0.0f);
+Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimensionX, int dimensionY, Ref<PerspectiveTransform> transform) {
+  Ref<BitMatrix> bits(new BitMatrix(dimensionX, dimensionY));
+  vector<float> points(dimensionX << 1, (const float)0.0f);
   for (int y = 0; y < dimensionY; y++) {
-    int max = int(points.size());
+    int max = points.size();
     float yValue = (float)y + 0.5f;
     for (int x = 0; x < max; x += 2) {
       points[x] = (float)(x >> 1) + 0.5f;
@@ -74,17 +74,17 @@ QSharedPointer<BitMatrix> GridSampler::sampleGrid(QSharedPointer<BitMatrix> imag
   return bits;
 }
 
-QSharedPointer<BitMatrix> GridSampler::sampleGrid(QSharedPointer<BitMatrix> image, int dimension, float p1ToX, float p1ToY, float p2ToX,
+Ref<BitMatrix> GridSampler::sampleGrid(Ref<BitMatrix> image, int dimension, float p1ToX, float p1ToY, float p2ToX,
                                        float p2ToY, float p3ToX, float p3ToY, float p4ToX, float p4ToY, float p1FromX, float p1FromY, float p2FromX,
                                        float p2FromY, float p3FromX, float p3FromY, float p4FromX, float p4FromY) {
-  QSharedPointer<PerspectiveTransform> transform(PerspectiveTransform::quadrilateralToQuadrilateral(p1ToX, p1ToY, p2ToX, p2ToY,
+  Ref<PerspectiveTransform> transform(PerspectiveTransform::quadrilateralToQuadrilateral(p1ToX, p1ToY, p2ToX, p2ToY,
                                       p3ToX, p3ToY, p4ToX, p4ToY, p1FromX, p1FromY, p2FromX, p2FromY, p3FromX, p3FromY, p4FromX, p4FromY));
 
   return sampleGrid(image, dimension, transform);
 
 }
 
-void GridSampler::checkAndNudgePoints(QSharedPointer<BitMatrix> image, vector<float> &points) {
+void GridSampler::checkAndNudgePoints(Ref<BitMatrix> image, vector<float> &points) {
   int width = image->getWidth();
   int height = image->getHeight();
 

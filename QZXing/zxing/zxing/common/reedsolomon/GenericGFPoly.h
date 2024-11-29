@@ -23,29 +23,30 @@
 #define GENERICGFPOLY_H
 
 #include <vector>
-#include <QSharedPointer>
+#include <zxing/common/Array.h>
+#include <zxing/common/Counted.h>
 
 namespace zxing {
 
 class GenericGF;
   
-class GenericGFPoly  {
+class GenericGFPoly : public Counted {
 private:
-  GenericGF *field_;
-  QSharedPointer<std::vector<int>> coefficients_;
+  Ref<GenericGF> field_;
+  ArrayRef<int> coefficients_;
     
 public:
-  GenericGFPoly(GenericGF *field, QSharedPointer<std::vector<int>> coefficients);
-  QSharedPointer<std::vector<int>> getCoefficients();
+  GenericGFPoly(Ref<GenericGF> field, ArrayRef<int> coefficients);
+  ArrayRef<int> getCoefficients();
   int getDegree();
   bool isZero();
   int getCoefficient(int degree);
   int evaluateAt(int a);
-  QSharedPointer<GenericGFPoly> addOrSubtract(QSharedPointer<GenericGFPoly> other);
-  QSharedPointer<GenericGFPoly> multiply(QSharedPointer<GenericGFPoly> other);
-  QSharedPointer<GenericGFPoly> multiply(int scalar);
-  QSharedPointer<GenericGFPoly> multiplyByMonomial(int degree, int coefficient);
-  std::vector<QSharedPointer<GenericGFPoly>> divide(QSharedPointer<GenericGFPoly> other);
+  Ref<GenericGFPoly> addOrSubtract(Ref<GenericGFPoly> other);
+  Ref<GenericGFPoly> multiply(Ref<GenericGFPoly> other);
+  Ref<GenericGFPoly> multiply(int scalar);
+  Ref<GenericGFPoly> multiplyByMonomial(int degree, int coefficient);
+  std::vector<Ref<GenericGFPoly> > divide(Ref<GenericGFPoly> other);
     
 
 };

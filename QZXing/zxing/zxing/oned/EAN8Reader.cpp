@@ -22,12 +22,12 @@ using std::vector;
 using zxing::oned::EAN8Reader;
 
 // VC++
-
+using zxing::Ref;
 using zxing::BitArray;
 
 EAN8Reader::EAN8Reader() : decodeMiddleCounters(4, 0) {}
 
-int EAN8Reader::decodeMiddle(QSharedPointer<BitArray> row,
+int EAN8Reader::decodeMiddle(Ref<BitArray> row,
                              Range const& startRange,
                              std::string& result){
   vector<int>& counters (decodeMiddleCounters);
@@ -41,8 +41,8 @@ int EAN8Reader::decodeMiddle(QSharedPointer<BitArray> row,
 
   for (int x = 0; x < 4 && rowOffset < end; x++) {
     int bestMatch = decodeDigit(row, counters, rowOffset, L_PATTERNS);
-    result.append(1, zxing::byte('0' + bestMatch));
-    for (int i = 0, end = int(counters.size()); i < end; i++) {
+    result.append(1, (char) ('0' + bestMatch));
+    for (int i = 0, end = counters.size(); i < end; i++) {
       rowOffset += counters[i];
     }
   }
@@ -52,7 +52,7 @@ int EAN8Reader::decodeMiddle(QSharedPointer<BitArray> row,
   rowOffset = middleRange[1];
   for (int x = 0; x < 4 && rowOffset < end; x++) {
     int bestMatch = decodeDigit(row, counters, rowOffset, L_PATTERNS);
-    result.append(1, zxing::byte('0' + bestMatch));
+    result.append(1, (char) ('0' + bestMatch));
     for (int i = 0, end = counters.size(); i < end; i++) {
       rowOffset += counters[i];
     }

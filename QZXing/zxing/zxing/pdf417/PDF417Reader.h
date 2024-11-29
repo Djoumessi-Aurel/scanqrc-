@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_PDF417_READER_H
-#define ZXING_PDF417_READER_H
+#ifndef __PDF417_READER_H__
+#define __PDF417_READER_H__
 
 /*
  *  PDF417Reader.h
@@ -33,17 +33,17 @@ class PDF417Reader : public Reader {
  private:
   decoder::Decoder decoder;
 			
-  static QSharedPointer<BitMatrix> extractPureBits(QSharedPointer<BitMatrix> image);
-  static int moduleSize(QSharedPointer<std::vector<int>> leftTopBlack, QSharedPointer<BitMatrix> image);
-  static int findPatternStart(int x, int y, QSharedPointer<BitMatrix> image);
-  static int findPatternEnd(int x, int y, QSharedPointer<BitMatrix> image);
+  static Ref<BitMatrix> extractPureBits(Ref<BitMatrix> image);
+  static int moduleSize(ArrayRef<int> leftTopBlack, Ref<BitMatrix> image);
+  static int findPatternStart(int x, int y, Ref<BitMatrix> image);
+  static int findPatternEnd(int x, int y, Ref<BitMatrix> image);
 
  public:
-  QSharedPointer<Result> decode(QSharedPointer<BinaryBitmap> image, DecodeHints hints);
+  Ref<Result> decode(Ref<BinaryBitmap> image, DecodeHints hints);
   void reset();
 };
 
 }
 }
 
-#endif // ZXING_PDF417_READER_H
+#endif // __PDF417_READER_H__

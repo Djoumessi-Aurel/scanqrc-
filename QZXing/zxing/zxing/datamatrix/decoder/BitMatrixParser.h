@@ -1,5 +1,5 @@
-#ifndef ZXING_BIT_MATRIX_PARSER_DM_H
-#define ZXING_BIT_MATRIX_PARSER_DM_H
+#ifndef __BIT_MATRIX_PARSER_DM_H__
+#define __BIT_MATRIX_PARSER_DM_H__
 
 /*
  *  BitMatrixParser.h
@@ -23,24 +23,25 @@
 
 #include <zxing/ReaderException.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/datamatrix/Version.h>
 
 namespace zxing {
 namespace datamatrix {
 
-class BitMatrixParser  {
+class BitMatrixParser : public Counted {
 private:
-  QSharedPointer<BitMatrix> bitMatrix_;
-  QSharedPointer<Version> parsedVersion_;
-  QSharedPointer<BitMatrix> readBitMatrix_;
+  Ref<BitMatrix> bitMatrix_;
+  Ref<Version> parsedVersion_;
+  Ref<BitMatrix> readBitMatrix_;
 
   int copyBit(size_t x, size_t y, int versionBits);
 
 public:
-  BitMatrixParser(QSharedPointer<BitMatrix> bitMatrix);
-  QSharedPointer<Version> readVersion(QSharedPointer<BitMatrix> bitMatrix);
-  QSharedPointer<std::vector<zxing::byte>> readCodewords();
+  BitMatrixParser(Ref<BitMatrix> bitMatrix);
+  Ref<Version> readVersion(Ref<BitMatrix> bitMatrix);
+  ArrayRef<char> readCodewords();
   bool readModule(int row, int column, int numRows, int numColumns);
 
 private:
@@ -49,10 +50,10 @@ private:
   int readCorner2(int numRows, int numColumns);
   int readCorner3(int numRows, int numColumns);
   int readCorner4(int numRows, int numColumns);
-  QSharedPointer<BitMatrix> extractDataRegion(QSharedPointer<BitMatrix> bitMatrix);
+  Ref<BitMatrix> extractDataRegion(Ref<BitMatrix> bitMatrix);
 };
 
 }
 }
 
-#endif // ZXING_BIT_MATRIX_PARSER_DM_H
+#endif // __BIT_MATRIX_PARSER_DM_H__

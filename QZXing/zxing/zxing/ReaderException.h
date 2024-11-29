@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_READER_EXCEPTION_H
-#define ZXING_READER_EXCEPTION_H
+#ifndef __READER_EXCEPTION_H__
+#define __READER_EXCEPTION_H__
 
 /*
  *  ReaderException.h
@@ -27,11 +27,11 @@ namespace zxing {
 
 class ReaderException : public Exception {
  public:
-  ReaderException() ZXING_NOEXCEPT;
-  ReaderException(char const* msg) ZXING_NOEXCEPT;
-  ~ReaderException() ZXING_NOEXCEPT;
+  ReaderException() throw() {}
+  ReaderException(char const* msg) throw() : Exception(msg) {}
+  ~ReaderException() throw() {}
 };
 
 }
 
-#endif // ZXING_READER_EXCEPTION_H
+#endif // __READER_EXCEPTION_H__

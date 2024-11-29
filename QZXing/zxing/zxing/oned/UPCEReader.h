@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_UPC_E_READER_H
-#define ZXING_UPC_E_READER_H
+#ifndef __UPC_E_READER_H__
+#define __UPC_E_READER_H__
 
 /*
  *  Copyright 2010 ZXing authors All rights reserved.
@@ -30,13 +30,13 @@ private:
   static bool determineNumSysAndCheckDigit(std::string& resultString, int lgPatternFound);
 
 protected:
-  Range decodeEnd(QSharedPointer<BitArray> row, int endStart);
-  bool checkChecksum(QSharedPointer<String> const& s);
+  Range decodeEnd(Ref<BitArray> row, int endStart);
+  bool checkChecksum(Ref<String> const& s);
 public:
   UPCEReader();
 
-  int decodeMiddle(QSharedPointer<BitArray> row, Range const& startRange, std::string& resultString);
-  static QSharedPointer<String> convertUPCEtoUPCA(QSharedPointer<String> const& upce);
+  int decodeMiddle(Ref<BitArray> row, Range const& startRange, std::string& resultString);
+  static Ref<String> convertUPCEtoUPCA(Ref<String> const& upce);
 
   BarcodeFormat getBarcodeFormat();
 };
@@ -44,5 +44,4 @@ public:
 }
 }
 
-#endif // ZXING_UPC_E_READER_H
-
+#endif

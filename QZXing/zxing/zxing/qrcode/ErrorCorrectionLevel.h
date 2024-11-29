@@ -1,5 +1,5 @@
-#ifndef ZXING_ERROR_CORRECTION_LEVEL_H
-#define ZXING_ERROR_CORRECTION_LEVEL_H
+#ifndef __ERROR_CORRECTION_LEVEL_H__
+#define __ERROR_CORRECTION_LEVEL_H__
 
 /*
  *  ErrorCorrectionLevel.h
@@ -21,17 +21,16 @@
  */
 
 #include <zxing/ReaderException.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 
 namespace zxing {
 namespace qrcode {
 
-class ErrorCorrectionLevel  {
+class ErrorCorrectionLevel : public Counted {
 private:
   int ordinal_;
   int bits_;
   std::string name_;
-
   ErrorCorrectionLevel(int inOrdinal, int bits, char const* name);
   static ErrorCorrectionLevel *FOR_BITS[];
   static int N_LEVELS;
@@ -42,7 +41,6 @@ public:
   static ErrorCorrectionLevel H;
 
   ErrorCorrectionLevel(const ErrorCorrectionLevel& other);
-  ErrorCorrectionLevel& operator=(const ErrorCorrectionLevel &other);
 
   int ordinal() const;
   int bits() const;
@@ -54,4 +52,4 @@ public:
 }
 }
 
-#endif // ZXING_ERROR_CORRECTION_LEVEL_H
+#endif // __ERROR_CORRECTION_LEVEL_H__

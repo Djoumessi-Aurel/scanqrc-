@@ -24,49 +24,45 @@
 #include <zxing/common/DecoderResult.h>
 #include <iostream>
 
-
+using zxing::Ref;
+using zxing::ArrayRef;
 using zxing::Result;
 using zxing::aztec::AztecReader;
 
 // VC++
 using zxing::BinaryBitmap;
 using zxing::DecodeHints;
-
-AztecReader::AztecReader() : decoder_()
-{
+        
+AztecReader::AztecReader() : decoder_() {
   // nothing
 }
-
-QSharedPointer<Result> AztecReader::decode(QSharedPointer<zxing::BinaryBitmap> image)
-{
+        
+Ref<Result> AztecReader::decode(Ref<zxing::BinaryBitmap> image) {
   Detector detector(image->getBlackMatrix());
-
-  QSharedPointer<AztecDetectorResult> detectorResult(detector.detect());
-
-  QSharedPointer<std::vector<QSharedPointer<ResultPoint>>> points(detectorResult->getPoints());
-
-  QSharedPointer<DecoderResult> decoderResult(decoder_.decode(detectorResult));
-
-  QSharedPointer<Result> result(new Result(decoderResult->getText(),
+            
+  Ref<AztecDetectorResult> detectorResult(detector.detect());
+            
+  ArrayRef< Ref<ResultPoint> > points(detectorResult->getPoints());
+            
+  Ref<DecoderResult> decoderResult(decoder_.decode(detectorResult));
+            
+  Ref<Result> result(new Result(decoderResult->getText(),
                                 decoderResult->getRawBytes(),
                                 points,
                                 BarcodeFormat::AZTEC));
-
+            
   return result;
 }
-
-QSharedPointer<Result> AztecReader::decode(QSharedPointer<BinaryBitmap> image, DecodeHints)
-{
+        
+Ref<Result> AztecReader::decode(Ref<BinaryBitmap> image, DecodeHints) {
   //cout << "decoding with hints not supported for aztec" << "\n" << flush;
   return this->decode(image);
 }
-
-AztecReader::~AztecReader()
-{
+        
+AztecReader::~AztecReader() {
   // nothing
 }
-
-zxing::aztec::Decoder &AztecReader::getDecoder()
-{
+        
+zxing::aztec::Decoder& AztecReader::getDecoder() {
   return decoder_;
 }

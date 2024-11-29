@@ -24,13 +24,13 @@
 
 namespace zxing {
 	
-	Binarizer::Binarizer(QSharedPointer<LuminanceSource> source) : source_(source) {
+	Binarizer::Binarizer(Ref<LuminanceSource> source) : source_(source) {
   }
 	
 	Binarizer::~Binarizer() {
 	}
 	
-	QSharedPointer<LuminanceSource> Binarizer::getLuminanceSource() const {
+	Ref<LuminanceSource> Binarizer::getLuminanceSource() const {
 		return source_;
 	}
 

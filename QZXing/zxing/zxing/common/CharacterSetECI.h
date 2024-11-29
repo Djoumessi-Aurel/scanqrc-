@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_CHARACTERSET_ECI
-#define ZXING_CHARACTERSET_ECI
+#ifndef __CHARACTERSET_ECI__
+#define __CHARACTERSET_ECI__
 
 /*
  * Copyright 2008-2011 ZXing authors
@@ -21,26 +21,23 @@
 
 #include <map>
 #include <zxing/DecodeHints.h>
-#include <QSharedPointer>
-#include <vector>
 
 namespace zxing {
 namespace common {
 
-class CharacterSetECI  {
+class CharacterSetECI {
 private:
   static std::map<int, CharacterSetECI*> VALUE_TO_ECI;
   static std::map<std::string, CharacterSetECI*> NAME_TO_ECI;
-  static std::vector<CharacterSetECI*> ECItables;
-  static bool inited;
+  static const bool inited;
   static bool init_tables();
 
-  std::vector<int> values_;
-  std::vector<std::string> names_;
+  int const* const values_;
+  char const* const* const names_;
 
-  CharacterSetECI(const std::vector<int> values, const std::vector<const char*> names);
+  CharacterSetECI(int const* values, char const* const* names);
 
-  static void addCharacterSet(const std::vector<int> &value, const std::vector<const char*> &encodingNames);
+  static void addCharacterSet(int const* value, char const* const* encodingNames);
 
 public:
   char const* name() const;
@@ -48,10 +45,9 @@ public:
 
   static CharacterSetECI* getCharacterSetECIByValue(int value);
   static CharacterSetECI* getCharacterSetECIByName(std::string const& name);
-  static void removeAllCharacterSets();
 };
 
 }
 }
 
-#endif // ZXING_CHARACTERSET_ECI
+#endif

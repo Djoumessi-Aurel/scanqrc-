@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_MONOCHROMERECTANGLEDETECTOR_H
-#define ZXING_MONOCHROMERECTANGLEDETECTOR_H
+#ifndef __MONOCHROMERECTANGLEDETECTOR_H__
+#define __MONOCHROMERECTANGLEDETECTOR_H__
 
 /*
  *  MonochromeRectangleDetector.h
@@ -27,31 +27,31 @@
 #include <zxing/NotFoundException.h>
 #include <zxing/ResultPoint.h>
 #include <zxing/common/BitMatrix.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 #include <zxing/ResultPoint.h>
 
 namespace zxing {
 
-struct TwoInts {
+struct TwoInts: public Counted {
   int start;
   int end;
 };
 
-class MonochromeRectangleDetector  {
+class MonochromeRectangleDetector : public Counted {
  private:
   static const int MAX_MODULES = 32;
-  QSharedPointer<BitMatrix> image_;
+  Ref<BitMatrix> image_;
 
  public:
-  MonochromeRectangleDetector(QSharedPointer<BitMatrix> image) : image_(image) {  };
+  MonochromeRectangleDetector(Ref<BitMatrix> image) : image_(image) {  };
 
-  std::vector<QSharedPointer<ResultPoint> > detect();
+  std::vector<Ref<ResultPoint> > detect();
 
  private:
-  QSharedPointer<ResultPoint> findCornerFromCenter(int centerX, int deltaX, int left, int right,
+  Ref<ResultPoint> findCornerFromCenter(int centerX, int deltaX, int left, int right,
                                         int centerY, int deltaY, int top, int bottom, int maxWhiteRun);
 
-  QSharedPointer<TwoInts> blackWhiteRange(int fixedDimension, int maxWhiteRun, int minDim, int maxDim,
+  Ref<TwoInts> blackWhiteRange(int fixedDimension, int maxWhiteRun, int minDim, int maxDim,
                                bool horizontal);
 
   int max(int a, float b) { return (float) a > b ? a : (int) b;};
@@ -59,4 +59,4 @@ class MonochromeRectangleDetector  {
 
 }
 
-#endif // ZXING_MONOCHROMERECTANGLEDETECTOR_H
+#endif // __MONOCHROMERECTANGLEDETECTOR_H__

@@ -22,40 +22,37 @@
 #include <zxing/Result.h>
 
 using zxing::Result;
-
-
+using zxing::Ref;
+using zxing::ArrayRef;
 using zxing::String;
 using zxing::ResultPoint;
 
 // VC++
 using zxing::BarcodeFormat;
 
-namespace zxing {
-
-Result::Result(QSharedPointer<String> text,
-               QSharedPointer<std::vector<zxing::byte>> rawBytes,
-               QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > resultPoints,
-               BarcodeFormat format, const std::string &charSet,
-               ResultMetadata metadata) :
-  text_(text), rawBytes_(rawBytes), resultPoints_(resultPoints), format_(format), charSet_(charSet), metadata_(metadata) {
+Result::Result(Ref<String> text,
+               ArrayRef<char> rawBytes,
+               ArrayRef< Ref<ResultPoint> > resultPoints,
+               BarcodeFormat format, std::string charSet) :
+  text_(text), rawBytes_(rawBytes), resultPoints_(resultPoints), format_(format), charSet_(charSet) {
 }
 
 Result::~Result() {
 }
 
-QSharedPointer<String> Result::getText() {
+Ref<String> Result::getText() {
   return text_;
 }
 
-QSharedPointer<std::vector<zxing::byte>> Result::getRawBytes() {
+ArrayRef<char> Result::getRawBytes() {
   return rawBytes_;
 }
 
-QSharedPointer<std::vector<QSharedPointer<ResultPoint>> > const& Result::getResultPoints() const {
+ArrayRef< Ref<ResultPoint> > const& Result::getResultPoints() const {
   return resultPoints_;
 }
 
-QSharedPointer<std::vector<QSharedPointer<ResultPoint>> >& Result::getResultPoints() {
+ArrayRef< Ref<ResultPoint> >& Result::getResultPoints() {
   return resultPoints_;
 }
 
@@ -66,11 +63,4 @@ zxing::BarcodeFormat Result::getBarcodeFormat() const {
 std::string Result::getCharSet() const
 {
     return charSet_;
-}
-
-ResultMetadata &Result::getMetadata()
-{
-    return metadata_;
-}
-
 }

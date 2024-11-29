@@ -26,40 +26,35 @@
 
 using zxing::GenericGF;
 using zxing::GenericGFPoly;
+using zxing::Ref;
 
-
-QSharedPointer<GenericGF> GenericGF::AZTEC_DATA_12(new GenericGF(0x1069, 4096, 1));
-QSharedPointer<GenericGF> GenericGF::AZTEC_DATA_10(new GenericGF(0x409, 1024, 1));
-QSharedPointer<GenericGF> GenericGF::AZTEC_DATA_6(new GenericGF(0x43, 64, 1));
-QSharedPointer<GenericGF> GenericGF::AZTEC_PARAM(new GenericGF(0x13, 16, 1));
-QSharedPointer<GenericGF> GenericGF::QR_CODE_FIELD_256(new GenericGF(0x011D, 256, 0));
-QSharedPointer<GenericGF> GenericGF::DATA_MATRIX_FIELD_256(new GenericGF(0x012D, 256, 1));
-QSharedPointer<GenericGF> GenericGF::AZTEC_DATA_8 = DATA_MATRIX_FIELD_256;
-QSharedPointer<GenericGF> GenericGF::MAXICODE_FIELD_64 = AZTEC_DATA_6;
-
+Ref<GenericGF> GenericGF::AZTEC_DATA_12(new GenericGF(0x1069, 4096, 1));
+Ref<GenericGF> GenericGF::AZTEC_DATA_10(new GenericGF(0x409, 1024, 1));
+Ref<GenericGF> GenericGF::AZTEC_DATA_6(new GenericGF(0x43, 64, 1));
+Ref<GenericGF> GenericGF::AZTEC_PARAM(new GenericGF(0x13, 16, 1));
+Ref<GenericGF> GenericGF::QR_CODE_FIELD_256(new GenericGF(0x011D, 256, 0));
+Ref<GenericGF> GenericGF::DATA_MATRIX_FIELD_256(new GenericGF(0x012D, 256, 1));
+Ref<GenericGF> GenericGF::AZTEC_DATA_8 = DATA_MATRIX_FIELD_256;
+Ref<GenericGF> GenericGF::MAXICODE_FIELD_64 = AZTEC_DATA_6;
+  
 namespace {
-  size_t INITIALIZATION_THRESHOLD = 0;
+  int INITIALIZATION_THRESHOLD = 0;
 }
-
-GenericGF::GenericGF(int primitive_, size_t size_, int b)
+  
+GenericGF::GenericGF(int primitive_, int size_, int b)
   : size(size_), primitive(primitive_), generatorBase(b), initialized(false) {
   if (size <= INITIALIZATION_THRESHOLD) {
     initialize();
   }
 }
-
-GenericGF::~GenericGF()
-{
-    return;
-}
-
+  
 void GenericGF::initialize() {
-  expTable = std::vector<int>(size);
-  logTable = std::vector<int>(size);
-
-  size_t x = 1;
-
-  for (size_t i = 0; i < size; i++) {
+  expTable.resize(size);
+  logTable.resize(size);
+    
+  int x = 1;
+    
+  for (int i = 0; i < size; i++) {
     expTable[i] = x;
     x <<= 1; // x = x * 2; we're assuming the generator alpha is 2
     if (x >= size) {
@@ -67,61 +62,59 @@ void GenericGF::initialize() {
       x &= size-1;
     }
   }
-  for (size_t i = 0; i < size-1; i++) {
-    logTable.at(expTable.at(i)) = i;
+  for (int i = 0; i < size-1; i++) {
+    logTable[expTable[i]] = i;
   }
   //logTable[0] == 0 but this should never be used
-  QSharedPointer<std::vector<int>> coefficients_zero(new std::vector<int>(1));
-  QSharedPointer<std::vector<int>> coefficients_one(new std::vector<int>(1));
-
-  (*coefficients_zero)[0] = 0;
-  (*coefficients_one)[0] = 1;
-
-  zero = QSharedPointer<GenericGFPoly>(new GenericGFPoly(this, coefficients_zero));
-  one = QSharedPointer<GenericGFPoly>(new GenericGFPoly(this, coefficients_one));
+  zero =
+    Ref<GenericGFPoly>(new GenericGFPoly(Ref<GenericGF>(this), ArrayRef<int>(new Array<int>(1))));
+  zero->getCoefficients()[0] = 0;
+  one =
+    Ref<GenericGFPoly>(new GenericGFPoly(Ref<GenericGF>(this), ArrayRef<int>(new Array<int>(1))));
+  one->getCoefficients()[0] = 1;
   initialized = true;
 }
-
+  
 void GenericGF::checkInit() {
   if (!initialized) {
     initialize();
   }
 }
-
-QSharedPointer<GenericGFPoly> GenericGF::getZero() {
+  
+Ref<GenericGFPoly> GenericGF::getZero() {
   checkInit();
   return zero;
 }
-
-QSharedPointer<GenericGFPoly> GenericGF::getOne() {
+  
+Ref<GenericGFPoly> GenericGF::getOne() {
   checkInit();
   return one;
 }
-
-QSharedPointer<GenericGFPoly> GenericGF::buildMonomial(int degree, int coefficient) {
+  
+Ref<GenericGFPoly> GenericGF::buildMonomial(int degree, int coefficient) {
   checkInit();
-
+    
   if (degree < 0) {
     throw IllegalArgumentException("Degree must be non-negative");
   }
   if (coefficient == 0) {
     return zero;
   }
-  QSharedPointer<std::vector<int>> coefficients(new std::vector<int>(degree + 1));
-  (*coefficients)[0] = coefficient;
-
-  return QSharedPointer<GenericGFPoly>(new GenericGFPoly(this, coefficients));
+  ArrayRef<int> coefficients(new Array<int>(degree + 1));
+  coefficients[0] = coefficient;
+    
+  return Ref<GenericGFPoly>(new GenericGFPoly(Ref<GenericGF>(this), coefficients));
 }
-
+  
 int GenericGF::addOrSubtract(int a, int b) {
   return a ^ b;
 }
-
+  
 int GenericGF::exp(int a) {
   checkInit();
   return expTable[a];
 }
-
+  
 int GenericGF::log(int a) {
   checkInit();
   if (a == 0) {
@@ -129,7 +122,7 @@ int GenericGF::log(int a) {
   }
   return logTable[a];
 }
-
+  
 int GenericGF::inverse(int a) {
   checkInit();
   if (a == 0) {
@@ -137,18 +130,18 @@ int GenericGF::inverse(int a) {
   }
   return expTable[size - logTable[a] - 1];
 }
-
+  
 int GenericGF::multiply(int a, int b) {
   checkInit();
-
+    
   if (a == 0 || b == 0) {
     return 0;
   }
-
+    
   return expTable[(logTable[a] + logTable[b]) % (size - 1)];
   }
-
-size_t GenericGF::getSize() {
+    
+int GenericGF::getSize() {
   return size;
 }
 

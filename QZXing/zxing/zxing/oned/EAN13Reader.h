@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_EAN_13_READER_H
-#define ZXING_EAN_13_READER_H
+#ifndef __EAN_13_READER_H__
+#define __EAN_13_READER_H__
 
 /*
  *  EAN13Reader.h
@@ -36,7 +36,7 @@ private:
 public:
   EAN13Reader();
 
-  int decodeMiddle(QSharedPointer<BitArray> row,
+  int decodeMiddle(Ref<BitArray> row,
                    Range const& startRange,
                    std::string& resultString);
 
@@ -46,5 +46,4 @@ public:
 }
 }
 
-#endif // ZXING_EAN_13_READER_H
-
+#endif

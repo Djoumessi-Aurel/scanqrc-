@@ -1,5 +1,5 @@
-#ifndef ZXING_DATA_BLOCK_H
-#define ZXING_DATA_BLOCK_H
+#ifndef __DATA_BLOCK_H__
+#define __DATA_BLOCK_H__
 
 /*
  *  DataBlock.h
@@ -21,29 +21,30 @@
  */
 
 #include <vector>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/qrcode/Version.h>
 #include <zxing/qrcode/ErrorCorrectionLevel.h>
 
 namespace zxing {
 namespace qrcode {
 
-class DataBlock  {
+class DataBlock : public Counted {
 private:
   int numDataCodewords_;
-  QSharedPointer<std::vector<zxing::byte>> codewords_;
+  ArrayRef<char> codewords_;
 
-  DataBlock(int numDataCodewords, QSharedPointer<std::vector<zxing::byte>> codewords);
+  DataBlock(int numDataCodewords, ArrayRef<char> codewords);
 
 public:
-  static std::vector<QSharedPointer<DataBlock> >
-  getDataBlocks(QSharedPointer<std::vector<zxing::byte>> rawCodewords, QSharedPointer<Version>version, ErrorCorrectionLevel &ecLevel);
+  static std::vector<Ref<DataBlock> >
+  getDataBlocks(ArrayRef<char> rawCodewords, Version *version, ErrorCorrectionLevel &ecLevel);
 
   int getNumDataCodewords();
-  QSharedPointer<std::vector<zxing::byte>> getCodewords();
+  ArrayRef<char> getCodewords();
 };
 
 }
 }
 
-#endif // ZXING_DATA_BLOCK_H
+#endif // __DATA_BLOCK_H__

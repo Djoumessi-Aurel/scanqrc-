@@ -23,45 +23,43 @@
 #define GENERICGF_H
 
 #include <vector>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
 
 namespace zxing {
   class GenericGFPoly;
   
-  class GenericGF {
+  class GenericGF : public Counted {
     
   private:
     std::vector<int> expTable;
     std::vector<int> logTable;
-    QSharedPointer<GenericGFPoly> zero;
-    QSharedPointer<GenericGFPoly> one;
-    size_t size;
+    Ref<GenericGFPoly> zero;
+    Ref<GenericGFPoly> one;
+    int size;
     int primitive;
     int generatorBase;
     bool initialized;
-
-    GenericGF(int primitive, size_t size, int b);
     
     void initialize();
     void checkInit();
     
   public:
-    static QSharedPointer<GenericGF> AZTEC_DATA_12;
-    static QSharedPointer<GenericGF> AZTEC_DATA_10;
-    static QSharedPointer<GenericGF> AZTEC_DATA_8;
-    static QSharedPointer<GenericGF> AZTEC_DATA_6;
-    static QSharedPointer<GenericGF> AZTEC_PARAM;
-    static QSharedPointer<GenericGF> QR_CODE_FIELD_256;
-    static QSharedPointer<GenericGF> DATA_MATRIX_FIELD_256;
-    static QSharedPointer<GenericGF> MAXICODE_FIELD_64;
-
-    ~GenericGF();
+    static Ref<GenericGF> AZTEC_DATA_12;
+    static Ref<GenericGF> AZTEC_DATA_10;
+    static Ref<GenericGF> AZTEC_DATA_8;
+    static Ref<GenericGF> AZTEC_DATA_6;
+    static Ref<GenericGF> AZTEC_PARAM;
+    static Ref<GenericGF> QR_CODE_FIELD_256;
+    static Ref<GenericGF> DATA_MATRIX_FIELD_256;
+    static Ref<GenericGF> MAXICODE_FIELD_64;
     
-    QSharedPointer<GenericGFPoly> getZero();
-    QSharedPointer<GenericGFPoly> getOne();
-    size_t getSize();
+    GenericGF(int primitive, int size, int b);
+    
+    Ref<GenericGFPoly> getZero();
+    Ref<GenericGFPoly> getOne();
+    int getSize();
     int getGeneratorBase();
-    QSharedPointer<GenericGFPoly> buildMonomial(int degree, int coefficient);
+    Ref<GenericGFPoly> buildMonomial(int degree, int coefficient);
     
     static int addOrSubtract(int a, int b);
     int exp(int a);
@@ -72,3 +70,4 @@ namespace zxing {
 }
 
 #endif //GENERICGF_H
+

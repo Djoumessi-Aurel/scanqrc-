@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_COMMON_DETECTOR_MATHUTILS_H
-#define ZXING_COMMON_DETECTOR_MATHUTILS_H
+#ifndef __ZXING_COMMON_DETECTOR_MATHUTILS_H__
+#define __ZXING_COMMON_DETECTOR_MATHUTILS_H__
 /*
  *  Copyright 2012 ZXing authors All rights reserved.
  *
@@ -18,7 +18,6 @@
  */
 
 #include <cmath>
-#include <vector>
 
 namespace zxing {
 namespace common {
@@ -49,19 +48,10 @@ class MathUtils {
     int yDiff = aY - bY;
     return sqrt(float(xDiff * xDiff + yDiff * yDiff));
   }
-
-  static inline int sum(std::vector<int> array) {
-    int count = 0;
-    for (int a : array) {
-      count += a;
-    }
-    return count;
-  }
 };
 
 }
 }
 }
 
-#endif // ZXING_COMMON_DETECTOR_MATHUTILS_H
-
+#endif

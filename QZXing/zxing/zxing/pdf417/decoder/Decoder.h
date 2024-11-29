@@ -1,5 +1,5 @@
-#ifndef ZXING_DECOCER_PDF_H
-#define ZXING_DECOCER_PDF_H
+#ifndef __DECOCER_PDF_H__
+#define __DECOCER_PDF_H__
 
 /*
  *  Decoder.h
@@ -23,7 +23,8 @@
 
 #include <zxing/pdf417/decoder/ec/ErrorCorrection.h>
 #include <zxing/pdf417/decoder/ec/ModulusGF.h>
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/DecoderResult.h>
 #include <zxing/common/BitMatrix.h>
 
@@ -45,17 +46,17 @@ private:
   static const int MAX_ERRORS;
   static const int MAX_EC_CODEWORDS;
 
-  void correctErrors(QSharedPointer<std::vector<int>> codewords,
-		QSharedPointer<std::vector<int>> erasures, int numECCodewords);
-  static void verifyCodewordCount(QSharedPointer<std::vector<int>> codewords, int numECCodewords);
+  void correctErrors(ArrayRef<int> codewords,
+		ArrayRef<int> erasures, int numECCodewords);
+  static void verifyCodewordCount(ArrayRef<int> codewords, int numECCodewords);
 
 public:
 
-  QSharedPointer<DecoderResult> decode(QSharedPointer<BitMatrix> bits, DecodeHints const &hints);
+  Ref<DecoderResult> decode(Ref<BitMatrix> bits, DecodeHints const &hints);
 };
 
 }
 }
 }
 
-#endif // ZXING_DECOCER_PDF_H
+#endif // __DECOCER_PDF_H__

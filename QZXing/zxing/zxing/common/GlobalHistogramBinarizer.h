@@ -1,6 +1,6 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
-#ifndef ZXING_GLOBALHISTOGRAMBINARIZER_H
-#define ZXING_GLOBALHISTOGRAMBINARIZER_H
+#ifndef __GLOBALHISTOGRAMBINARIZER_H__
+#define __GLOBALHISTOGRAMBINARIZER_H__
 /*
  *  GlobalHistogramBinarizer.h
  *  zxing
@@ -23,25 +23,26 @@
 #include <zxing/Binarizer.h>
 #include <zxing/common/BitArray.h>
 #include <zxing/common/BitMatrix.h>
+#include <zxing/common/Array.h>
 
 namespace zxing {
 	
 class GlobalHistogramBinarizer : public Binarizer {
 private:
-  QSharedPointer<std::vector<zxing::byte>> luminances;
-  QSharedPointer<std::vector<int>> buckets;
+  ArrayRef<char> luminances;
+  ArrayRef<int> buckets;
 public:
-  GlobalHistogramBinarizer(QSharedPointer<LuminanceSource> source);
+  GlobalHistogramBinarizer(Ref<LuminanceSource> source);
   virtual ~GlobalHistogramBinarizer();
 		
-  virtual QSharedPointer<BitArray> getBlackRow(int y, QSharedPointer<BitArray> row);
-  virtual QSharedPointer<BitMatrix> getBlackMatrix();
-  static int estimateBlackPoint(QSharedPointer<std::vector<int>> const& buckets);
-  QSharedPointer<Binarizer> createBinarizer(QSharedPointer<LuminanceSource> source);
+  virtual Ref<BitArray> getBlackRow(int y, Ref<BitArray> row);
+  virtual Ref<BitMatrix> getBlackMatrix();
+  static int estimateBlackPoint(ArrayRef<int> const& buckets);
+  Ref<Binarizer> createBinarizer(Ref<LuminanceSource> source);
 private:
   void initArrays(int luminanceSize);
 };
 
 }
 	
-#endif /* ZXING_GLOBALHISTOGRAMBINARIZER_H */
+#endif /* GLOBALHISTOGRAMBINARIZER_H_ */

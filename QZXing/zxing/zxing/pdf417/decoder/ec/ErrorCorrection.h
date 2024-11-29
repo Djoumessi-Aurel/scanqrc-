@@ -1,7 +1,7 @@
 // -*- mode:c++; tab-width:2; indent-tabs-mode:nil; c-basic-offset:2 -*-
 
-#ifndef ZXING_ERROR_CORRECTION_PDF_H
-#define ZXING_ERROR_CORRECTION_PDF_H
+#ifndef __ERROR_CORRECTION_PDF_H__
+#define __ERROR_CORRECTION_PDF_H__
 /*
  * Copyright 2012 ZXing authors
  *
@@ -20,7 +20,8 @@
  * 2012-09-17 HFN translation from Java into C++
  */
 
-#include <QSharedPointer>
+#include <zxing/common/Counted.h>
+#include <zxing/common/Array.h>
 #include <zxing/common/DecoderResult.h>
 #include <zxing/common/BitMatrix.h>
 #include <zxing/pdf417/decoder/ec/ModulusGF.h>
@@ -42,24 +43,24 @@ namespace ec {
  * @author Sean Owen
  * @see com.google.zxing.common.reedsolomon.ReedSolomonDecoder
  */
-class ErrorCorrection {
+class ErrorCorrection: public Counted {
 
  private:
   ModulusGF &field_;
 
  public:
   ErrorCorrection();
-  void decode(QSharedPointer<std::vector<int>> received,
+  void decode(ArrayRef<int> received,
               int numECCodewords,
-              QSharedPointer<std::vector<int>> erasures);
+              ArrayRef<int> erasures);
 
  private:
-  std::vector<QSharedPointer<ModulusPoly> > runEuclideanAlgorithm(QSharedPointer<ModulusPoly> a, QSharedPointer<ModulusPoly> b, int R);
+  std::vector<Ref<ModulusPoly> > runEuclideanAlgorithm(Ref<ModulusPoly> a, Ref<ModulusPoly> b, int R);
 
-  QSharedPointer<std::vector<int>> findErrorLocations(QSharedPointer<ModulusPoly> errorLocator);
-  QSharedPointer<std::vector<int>> findErrorMagnitudes(QSharedPointer<ModulusPoly> errorEvaluator,
-                                    QSharedPointer<ModulusPoly> errorLocator,
-                                    QSharedPointer<std::vector<int>> errorLocations);
+  ArrayRef<int> findErrorLocations(Ref<ModulusPoly> errorLocator);
+  ArrayRef<int> findErrorMagnitudes(Ref<ModulusPoly> errorEvaluator,
+                                    Ref<ModulusPoly> errorLocator,
+                                    ArrayRef<int> errorLocations);
 };
 
 }
@@ -67,4 +68,4 @@ class ErrorCorrection {
 }
 }
 
-#endif /* ZXING_ERROR_CORRECTION_PDF_H */
+#endif /* __ERROR_CORRECTION_PDF_H__ */

@@ -24,24 +24,24 @@
 using namespace std;
 using namespace zxing;
 
-DecoderResult::DecoderResult(QSharedPointer<std::vector<zxing::byte>> rawBytes,
-                             QSharedPointer<String> text,
-                             QSharedPointer<std::vector< QSharedPointer<std::vector<zxing::byte>>>>& byteSegments,
+DecoderResult::DecoderResult(ArrayRef<char> rawBytes,
+                             Ref<String> text,
+                             ArrayRef< ArrayRef<char> >& byteSegments,
                              string const& ecLevel, string charSet) :
   rawBytes_(rawBytes),
   text_(text),
   byteSegments_(byteSegments),
   ecLevel_(ecLevel), charSet_(charSet) {}
 
-DecoderResult::DecoderResult(QSharedPointer<std::vector<zxing::byte>> rawBytes,
-                             QSharedPointer<String> text)
+DecoderResult::DecoderResult(ArrayRef<char> rawBytes,
+                             Ref<String> text)
   : rawBytes_(rawBytes), text_(text),charSet_("") {}
 
-QSharedPointer<std::vector<zxing::byte>> DecoderResult::getRawBytes() {
+ArrayRef<char> DecoderResult::getRawBytes() {
   return rawBytes_;
 }
 
-QSharedPointer<String> DecoderResult::getText() {
+Ref<String> DecoderResult::getText() {
     return text_;
 }
 
