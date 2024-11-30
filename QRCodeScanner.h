@@ -5,6 +5,8 @@
 #include <QCamera>
 #include <QCameraViewfinder>
 #include <QCameraImageCapture>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QTextEdit>
 #include <QLabel>
 #include <QPushButton>
@@ -34,9 +36,13 @@ private:
     QTimer *timer;
     QString lastDecodedText;
     QTextEdit *resultArea;
+    QLabel *imageLabel;
     QPushButton *scanButton;
     QComboBox *camerasComboBox;
+    QHBoxLayout *layoutH;
     QMediaPlayer *notificationSound;
+
+    QWidget *fenetre;
     bool isCameraActive;
 
 };

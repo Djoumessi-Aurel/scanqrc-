@@ -1,5 +1,4 @@
 #include "QRCodeScanner.h"
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QDir>
 #include <QDebug>
@@ -13,10 +12,13 @@ QRCodeScanner::QRCodeScanner(QWidget *parent)
       camera(new QCamera(this)),
       viewfinder(new QCameraViewfinder(this)),
       resultArea(new QTextEdit("", this)),
+      imageLabel(new QLabel(this)),
+      layoutH(new QHBoxLayout()), // pour contenir layoutV et imageLabel
       scanButton(new QPushButton("Démarrer le scan", this)),
       camerasComboBox(new QComboBox(this)),
       isCameraActive(false) {
 
+    fenetre = parent;
 
     resultArea->setAlignment(Qt::AlignCenter);
     resultArea->setStyleSheet("font-family: 'Book Antiqua'; font-size: 12pt;");
@@ -37,14 +39,19 @@ QRCodeScanner::QRCodeScanner(QWidget *parent)
     QHBoxLayout *cameraSelectionLayout = new QHBoxLayout();
     cameraSelectionLayout->addWidget(new QLabel("Sélectionner la caméra :"));
     cameraSelectionLayout->addWidget(camerasComboBox);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    QVBoxLayout *layoutV = new QVBoxLayout(); // pour contenir viewfinder et resultArea
 
     layout->addLayout(cameraSelectionLayout);
-    layout->addWidget(viewfinder);
-    layout->addWidget(resultArea);
+    layoutV->addWidget(viewfinder);
+    layoutV->addWidget(resultArea);
+    layoutH->addLayout(layoutV);
+    //layoutH->addWidget(imageLabel);
+    layout->addLayout(layoutH);
     layout->addWidget(scanButton);
 
-    viewfinder->hide();
+    viewfinder->hide(); viewfinder->setMaximumWidth(800); resultArea->setMinimumWidth(600);
+    imageLabel->hide();
     setLayout(layout);
 
     timer = new QTimer(this);
@@ -75,7 +82,15 @@ void QRCodeScanner::processImage(int id, const QImage& preview) {
         notificationSound->play();
 
         toggleCamera();
+        setMaximumWidth(1300);
+        imageLabel->setPixmap(QPixmap::fromImage(normalImage));
+        imageLabel->setAlignment(Qt::AlignCenter);
+        layoutH->addWidget(imageLabel);
+        imageLabel->show();
         //showDialog(normalImage);
+    }
+    else{
+        setMaximumWidth(800);
     }
 }
 
@@ -83,9 +98,17 @@ void QRCodeScanner::toggleCamera() {
     isCameraActive = !isCameraActive;
 
     if (isCameraActive) {
+
+        fenetre->setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        fenetre->resize(800, 600);
+        fenetre->setFixedHeight(600);
+        setMaximumWidth(800);
         camera->start();
         viewfinder->show();
         resultArea->hide();
+        layoutH->removeWidget(imageLabel);
+        imageLabel->hide();
+
         resultArea->setText("");
         scanButton->setText("Arrêter le scan");
         timer->start(300); //On capture l'image chaque 300 milliseconde
