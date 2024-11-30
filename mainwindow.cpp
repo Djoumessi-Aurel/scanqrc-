@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(scannerWidget);
     setWindowTitle("Scanner de QR Code");
     resize(800, 600);
+    setFixedHeight(600);
 }
 
 MainWindow::~MainWindow()
